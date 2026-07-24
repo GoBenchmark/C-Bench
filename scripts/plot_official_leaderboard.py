@@ -22,8 +22,8 @@ QA_PATH = ASSET_DIR / "cbench-official-leaderboard.qa.json"
 
 COLORS = {
     "gpt-5.6-sol": "#0F766E",
-    "gpt-5.6-luna": "#4F46E5",
-    "gpt-5.6-terra": "#D97706",
+    "gpt-5.6-luna": "#64748B",
+    "gpt-5.6-terra": "#64748B",
 }
 
 
@@ -60,65 +60,32 @@ def plot(rows: list[dict[str, str]]) -> None:
         }
     )
 
-    figure = plt.figure(figsize=(7.2, 3.9), facecolor="#F8FAFC")
-    axis = figure.add_axes((0.17, 0.20, 0.78, 0.58), facecolor="#F8FAFC")
+    figure = plt.figure(figsize=(7.2, 3.2), facecolor="white")
+    axis = figure.add_axes((0.22, 0.20, 0.72, 0.60), facecolor="white")
 
     positions = list(reversed(range(len(rows))))
     scores = [float(row["cbench_score"]) for row in rows]
     models = [row["model"] for row in rows]
     colors = [COLORS[model] for model in models]
 
-    axis.barh(positions, [100] * len(rows), height=0.48, color="#E2E8F0")
-    axis.barh(positions, scores, height=0.48, color=colors)
-    axis.scatter(scores, positions, s=38, color=colors, edgecolor="white", linewidth=1.0, zorder=3)
+    axis.barh(positions, scores, height=0.52, color=colors)
 
-    for position, score, row, color in zip(positions, scores, rows, colors):
-        detail = (
-            f"{100 * float(row['macro_similarity']):.2f}% similarity  |  "
-            f"{100 * float(row['macro_prefix']):.2f}% prefix  |  "
-            f"{row['exact']}/{row['cases']} exact"
-        )
+    for position, score in zip(positions, scores):
         axis.text(
-            score + 1.3,
-            position + 0.075,
+            score + 0.45,
+            position,
             f"{score:.2f}",
-            color=color,
-            fontsize=11,
+            color="#0F172A",
+            fontsize=10,
             fontweight="bold",
             va="center",
         )
-        axis.text(
-            score + 1.3,
-            position - 0.115,
-            detail,
-            color="#475569",
-            fontsize=7.7,
-            va="center",
-        )
 
-    anchors = [
-        (100 / 3, "90% similarity"),
-        (200 / 3, "99% similarity"),
-        (100, "99.9% similarity"),
-    ]
-    for value, label in anchors:
-        axis.axvline(value, color="#94A3B8", linewidth=0.8, linestyle=(0, (3, 3)), zorder=0)
-        axis.text(
-            value,
-            1.06,
-            label,
-            transform=axis.get_xaxis_transform(),
-            ha="right" if value == 100 else "center",
-            va="bottom",
-            color="#64748B",
-            fontsize=7.5,
-        )
-
-    axis.set_xlim(0, 100)
+    axis.set_xlim(0, 35)
     axis.set_ylim(-0.65, len(rows) - 0.35)
     axis.set_yticks(positions, models, fontweight="bold", color="#0F172A")
-    axis.set_xticks([0, 20, 40, 60, 80, 100])
-    axis.set_xlabel("C-Bench Score (higher is better)", color="#334155", labelpad=9)
+    axis.set_xticks([0, 10, 20, 30])
+    axis.set_xlabel("C-Bench Score", color="#334155", labelpad=8)
     axis.tick_params(axis="y", length=0, pad=12)
     axis.tick_params(axis="x", colors="#64748B", length=0)
     axis.grid(axis="x", color="#CBD5E1", linewidth=0.6, alpha=0.65)
@@ -126,28 +93,19 @@ def plot(rows: list[dict[str, str]]) -> None:
     axis.spines["bottom"].set_color("#94A3B8")
 
     figure.text(
-        0.06,
-        0.91,
+        0.08,
+        0.90,
         "Official C-Bench leaderboard",
-        fontsize=20,
+        fontsize=17,
         fontweight="bold",
         color="#0F172A",
         ha="left",
     )
     figure.text(
-        0.06,
-        0.85,
-        "Log-scaled macro continuation similarity  |  official_v1  |  xhigh reasoning",
-        fontsize=9.5,
-        color="#475569",
-        ha="left",
-    )
-    figure.text(
-        0.06,
-        0.07,
-        "Each +33.3 points represents a 10x reduction in mismatch. "
-        "All entries completed 12/12 private official cases.",
-        fontsize=8,
+        0.08,
+        0.83,
+        "official_v1  |  xhigh  |  higher is better",
+        fontsize=8.5,
         color="#64748B",
         ha="left",
     )
@@ -203,7 +161,7 @@ def write_qa(rows: list[dict[str, str]]) -> None:
             TIFF_PATH.name,
         ],
         "png_dimensions_px": png_dimensions,
-        "figure_size_inches": [7.2, 3.9],
+        "figure_size_inches": [7.2, 3.2],
         "figure_width_mm": 182.88,
         "png_dpi": 300,
         "python": platform.python_version(),

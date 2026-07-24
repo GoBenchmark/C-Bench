@@ -3,7 +3,7 @@
   "excluded_rows": 0,
   "figure_size_inches": [
     7.2,
-    3.9
+    3.2
   ],
   "figure_width_mm": 182.88,
   "matplotlib": "3.11.1",
@@ -15,7 +15,7 @@
   ],
   "png_dimensions_px": [
     2160,
-    1170
+    960
   ],
   "png_dpi": 300,
   "private_data_included": false,
