@@ -66,6 +66,7 @@ def plot(rows: list[dict[str, str]]) -> None:
     positions = list(reversed(range(len(rows))))
     scores = [float(row["cbench_score"]) for row in rows]
     models = [row["model"] for row in rows]
+    model_labels = [f"{row['model']} ({row['setting']})" for row in rows]
     colors = [COLORS[model] for model in models]
 
     axis.barh(positions, scores, height=0.52, color=colors)
@@ -83,7 +84,7 @@ def plot(rows: list[dict[str, str]]) -> None:
 
     axis.set_xlim(0, 35)
     axis.set_ylim(-0.65, len(rows) - 0.35)
-    axis.set_yticks(positions, models, fontweight="bold", color="#0F172A")
+    axis.set_yticks(positions, model_labels, fontweight="bold", color="#0F172A")
     axis.set_xticks([0, 10, 20, 30])
     axis.set_xlabel("C-Bench Score", color="#334155", labelpad=8)
     axis.tick_params(axis="y", length=0, pad=12)
@@ -104,7 +105,7 @@ def plot(rows: list[dict[str, str]]) -> None:
     figure.text(
         0.08,
         0.83,
-        "official_v1  |  xhigh  |  higher is better",
+        "official_v1  |  higher is better",
         fontsize=8.5,
         color="#64748B",
         ha="left",
