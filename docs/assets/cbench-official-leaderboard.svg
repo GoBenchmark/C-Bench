@@ -150,7 +150,7 @@ L 487.296 184.32
    <text style="font-weight: 700; font-size: 17px; font-family: 'Arial', 'Helvetica', 'Liberation Sans', 'DejaVu Sans', sans-serif; text-anchor: start; fill: #0f172a" x="41.472" y="23.04" transform="rotate(-0 41.472 23.04)">Official C-Bench leaderboard</text>
   </g>
   <g id="text_13">
-   <text style="font-size: 8.5px; font-family: 'Arial', 'Helvetica', 'Liberation Sans', 'DejaVu Sans', sans-serif; text-anchor: start; fill: #64748b" x="41.472" y="39.168" transform="rotate(-0 41.472 39.168)">official_v1  |  higher is better</text>
+   <text style="font-size: 8.5px; font-family: 'Arial', 'Helvetica', 'Liberation Sans', 'DejaVu Sans', sans-serif; text-anchor: start; fill: #64748b" x="41.472" y="39.168" transform="rotate(-0 41.472 39.168)">higher is better</text>
   </g>
  </g>
  <defs>

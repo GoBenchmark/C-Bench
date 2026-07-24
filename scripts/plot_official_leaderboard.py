@@ -105,7 +105,7 @@ def plot(rows: list[dict[str, str]]) -> None:
     figure.text(
         0.08,
         0.83,
-        "official_v1  |  higher is better",
+        "higher is better",
         fontsize=8.5,
         color="#64748B",
         ha="left",
