@@ -4,41 +4,21 @@
 
 ## Principle
 
-**Compression and prediction are deeply equivalent.** A probabilistic model
-that predicts what comes next can turn those probabilities into a lossless
-code: likely content requires fewer bits, while surprising content requires
-more. The ideal code length for an outcome `x` is `-log2 P(x)`, so compression
-measures predictive probability in a concrete, auditable unit.
+For a sequence \(x=(x_1,\ldots,x_T)\), an autoregressive model defines
 
-**A better language model is a better general-purpose predictive compressor.**
-If a model has learned more of the reusable structure in language and data, it
-should predict and compress unfamiliar prose, code, multilingual text, and
-structured data more efficiently. C-Bench tests this broad predictive ability
-instead of judging generated answers with task-specific rubrics.
+\[
+P_\theta(x)=\prod_{t=1}^{T}P_\theta(x_t\mid x_{<t}), \qquad
+L_\theta(x)=-\log_2 P_\theta(x)
+            =-\sum_{t=1}^{T}\log_2 P_\theta(x_t\mid x_{<t}).
+\]
 
-This principle determines the benchmark design:
+By source coding, \(L_\theta(x)\) is the ideal lossless code length. C-Bench
+normalizes it as \(\mathrm{BPB}=L_\theta(x)/|x|_{\mathrm{bytes}}\): better
+prediction means fewer bits. Therefore, **a better language model is a better
+general-purpose predictive compressor**.
 
-- **Measure predictions, not performances.** C-Bench scores the probability of
-  a supplied target sequence. It does not ask a model to generate an answer and
-  then judge the answer's style or similarity.
-- **Normalize across tokenizers.** Models use their native tokenization, while
-  the final cost is normalized by the target's raw UTF-8 bytes. Token count and
-  vocabulary design should not decide the ranking.
-- **Reward broad understanding.** Macro BPB gives each domain equal weight so
-  an easy, large slice cannot hide weak performance elsewhere.
-- **Make every number auditable.** Scores should include the suite, model
-  identity, inference settings, access tier, confidence interval, and enough
-  metadata to reproduce the run.
-- **Separate capability from resources.** Predictive compression, reasoning
-  effort, latency, cost, and model or artifact size are related but different
-  questions. They belong in separate tracks or clearly labeled columns.
-- **Treat leakage as a first-class risk.** Public development data makes the
-  implementation inspectable; serious leaderboard claims require hidden or
-  rotating evaluation data and strict submission procedures.
-
-The goal is not to reward memorization of a fixed collection. It is to measure
-how efficiently a model predicts and represents data it has not been allowed to
-inspect in advance.
+C-Bench averages BPB across domains, reports reproducible metadata, and uses
+hidden evaluation data to measure generalization rather than memorization.
 
 C-Bench evaluates language models as predictive compressors. The public
 leaderboard score is a fixed 0-100 linear conversion of Macro BPB, where higher
