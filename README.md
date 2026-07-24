@@ -65,6 +65,8 @@ exact BPB are supporting diagnostics.
 Official cases and answer keys are private and are not published in this
 repository. Maintainer-controlled runs use hidden, rotating continuations.
 
+![Official C-Bench leaderboard showing log-scaled scores for gpt-5.6-sol, gpt-5.6-luna, and gpt-5.6-terra](docs/assets/cbench-official-leaderboard.png)
+
 | Rank | Model | Access / setting | Suite | C-Bench Score | Similarity | Prefix | Exact | Evidence |
 |---:|---|---|---|---:|---:|---:|---:|---|
 | 1 | gpt-5.6-sol | OpenAI API / xhigh | official_v1 | **29.13** | 86.63% | 65.51% | 5/12 | Maintainer run; 12/12 completed |
