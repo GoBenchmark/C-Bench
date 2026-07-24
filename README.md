@@ -4,16 +4,20 @@
 
 ## Principle
 
-For a sequence \(x=(x_1,\ldots,x_T)\), an autoregressive model defines
+For a sequence $x=(x_1,\ldots,x_T)$, an autoregressive model defines
 
-\[
-P_\theta(x)=\prod_{t=1}^{T}P_\theta(x_t\mid x_{<t}), \qquad
-L_\theta(x)=-\log_2 P_\theta(x)
-            =-\sum_{t=1}^{T}\log_2 P_\theta(x_t\mid x_{<t}).
-\]
+$$
+\begin{aligned}
+P_\theta(x)
+  &= \prod_{t=1}^{T} P_\theta(x_t \mid x_{<t}), \\
+L_\theta(x)
+  &= -\log_2 P_\theta(x) \\
+  &= -\sum_{t=1}^{T}\log_2 P_\theta(x_t \mid x_{<t}).
+\end{aligned}
+$$
 
-By source coding, \(L_\theta(x)\) is the ideal lossless code length. C-Bench
-normalizes it as \(\mathrm{BPB}=L_\theta(x)/|x|_{\mathrm{bytes}}\): better
+By source coding, $L_\theta(x)$ is the ideal lossless code length. C-Bench
+normalizes it as $\mathrm{BPB}=L_\theta(x)/|x|_{\mathrm{bytes}}$: better
 prediction means fewer bits. Therefore, **a better language model is a better
 general-purpose predictive compressor**.
 
