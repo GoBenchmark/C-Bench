@@ -1,4 +1,4 @@
-# C-Bench Reference Implementation
+# C-Bench: Measuring Language Models Through Compression
 
 ![C-Bench predictive compression](docs/assets/cbench-predictive-compression.png)
 
