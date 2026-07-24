@@ -1,0 +1,3 @@
+Language models can be evaluated as compressors.
+Language models can be evaluated as compressors.
+The score is lower when the model is less surprised by the next bytes.

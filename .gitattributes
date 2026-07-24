@@ -1,0 +1,2 @@
+# C-Bench scores exact source bytes; never normalize corpus line endings.
+datasets/** -text

@@ -1,0 +1,2 @@
+suite: dev_small
+manifest: ../datasets/dev_small_manifest.jsonl

@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cbench"
+version = "0.1.0"
+description = "Reference implementation for C-Bench, an LLM-as-compressor benchmark."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "C-Bench contributors" }]
+dependencies = []
+
+[project.optional-dependencies]
+hf = ["torch", "transformers"]
+zstd = ["zstandard"]
+brotli = ["brotli"]
+dev = ["build", "pytest"]
+
+[project.scripts]
+cbench = "cbench.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["cbench*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

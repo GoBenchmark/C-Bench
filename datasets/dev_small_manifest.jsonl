@@ -1,0 +1,4 @@
+{"id":"tiny_en_001","domain":"prose","path":"fixtures/tiny_en.txt","mode":"streaming","sha256":"a9bad63051ed251782970e4f4be5a5e14f1472aa3f46ae313fa097856f522c0d","license":"fixture","bytes":169}
+{"id":"tiny_code_001","domain":"code","path":"fixtures/tiny_code.py","mode":"streaming","sha256":"4fcb2ff62c795cca842179c6de6f66adb297de8e01241bedcff6814a34d6d266","license":"fixture","bytes":171}
+{"id":"tiny_zh_001","domain":"multilingual","path":"fixtures/tiny_zh.txt","mode":"streaming","sha256":"00717c460d56ce9cb9d7a4541c041ff5d3a11143a13b4c3bfca5dacb8b314726","license":"fixture","bytes":132}
+{"id":"tiny_json_001","domain":"structured","path":"fixtures/tiny_json.jsonl","mode":"streaming","sha256":"bd4360d0af5fc652bee6af98b2d2dd5b98910375b277953f1d88dd6095635574","license":"fixture","bytes":119}
