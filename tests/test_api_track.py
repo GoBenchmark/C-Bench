@@ -82,3 +82,14 @@ def test_duplicate_in_memory_cases_are_rejected() -> None:
             [],
             bootstrap_samples=20,
         )
+
+
+def test_duplicate_candidates_are_rejected() -> None:
+    duplicate = ApiChoiceCase(
+        id="duplicate-candidate",
+        domain="domain",
+        candidates=("same", "same", "third", "fourth"),
+        answer=0,
+    )
+    with pytest.raises(ValueError, match="candidates must be unique"):
+        score_api_track([duplicate], [], bootstrap_samples=20)

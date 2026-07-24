@@ -1,3 +1,5 @@
+import math
+
 import pytest
 
 from cbench.metrics import (
@@ -35,3 +37,9 @@ def test_score_100_clips_outside_published_range() -> None:
     assert bpb_to_score_100(20.0) == 0.0
     with pytest.raises(ValueError):
         bpb_to_score_100(-1.0)
+
+
+@pytest.mark.parametrize("bpb", [math.nan, math.inf, -math.inf])
+def test_score_100_rejects_non_finite_bpb(bpb: float) -> None:
+    with pytest.raises(ValueError, match="finite"):
+        bpb_to_score_100(bpb)

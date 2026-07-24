@@ -14,6 +14,21 @@ CONTINUATION_CHARS = 80
 DISTRACTOR_OFFSETS = (760, 920, 1080)
 
 
+def extract_candidates(text: str, *, case_id: str) -> list[str]:
+    candidates = [
+        text[CONTEXT_CHARS : CONTEXT_CHARS + CONTINUATION_CHARS],
+        *[
+            text[offset : offset + CONTINUATION_CHARS]
+            for offset in DISTRACTOR_OFFSETS
+        ],
+    ]
+    if any(len(candidate) != CONTINUATION_CHARS for candidate in candidates):
+        raise ValueError(f"{case_id}: document is too short for API cases")
+    if len(set(candidates)) != len(candidates):
+        raise ValueError(f"{case_id}: API candidates must be unique")
+    return candidates
+
+
 def main() -> None:
     config = load_suite_config("configs/public_dev.yaml")
     entries = validate_suite(config)
@@ -21,15 +36,7 @@ def main() -> None:
     for entry in entries:
         source_path = config.manifest_path.parent / entry.path
         text = source_path.read_text(encoding="utf-8")
-        candidates = [
-            text[CONTEXT_CHARS : CONTEXT_CHARS + CONTINUATION_CHARS],
-            *[
-                text[offset : offset + CONTINUATION_CHARS]
-                for offset in DISTRACTOR_OFFSETS
-            ],
-        ]
-        if any(not candidate for candidate in candidates):
-            raise ValueError(f"{entry.id}: document is too short for API cases")
+        candidates = extract_candidates(text, case_id=entry.id)
         seed = int.from_bytes(
             hashlib.sha256(entry.id.encode()).digest()[:8],
             byteorder="big",

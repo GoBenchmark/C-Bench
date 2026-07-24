@@ -9,9 +9,10 @@ from typing import Any
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
+from cbench import __version__
 
 MAX_SOURCE_BYTES = 25 * 1024 * 1024
-USER_AGENT = "C-Bench/0.1 dataset collector (+https://github.com/)"
+USER_AGENT = f"C-Bench/{__version__} dataset collector (+https://github.com/)"
 
 
 @dataclass(frozen=True)
@@ -56,9 +57,14 @@ def collect_catalog(
             )
         )
 
+    if not documents:
+        raise ValueError("Source catalog must contain at least one source")
     ids = [document.manifest_row["id"] for document in documents]
     if len(ids) != len(set(ids)):
         raise ValueError("Source catalog contains duplicate document IDs")
+    output_paths = [document.output_path for document in documents]
+    if len(output_paths) != len(set(output_paths)):
+        raise ValueError("Source catalog contains duplicate output paths")
 
     manifest_text = "".join(
         json.dumps(document.manifest_row, ensure_ascii=False, separators=(",", ":")) + "\n"
@@ -133,7 +139,11 @@ def _prepare_document(
         raise ValueError(f"{source['id']}: transform must be a JSON object")
 
     relative_output = PurePosixPath(str(source["output"]))
-    if relative_output.is_absolute() or ".." in relative_output.parts:
+    if (
+        not relative_output.parts
+        or relative_output.is_absolute()
+        or ".." in relative_output.parts
+    ):
         raise ValueError(f"Output must stay within the output directory: {source['output']}")
     output_path = output_root.joinpath(*relative_output.parts).resolve()
     if not output_path.is_relative_to(output_root):

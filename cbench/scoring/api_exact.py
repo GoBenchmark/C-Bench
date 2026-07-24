@@ -14,4 +14,4 @@ class ExactApiScore:
 
 class ExactApiScorer:
     def score(self, context: str, target: str) -> ExactApiScore:
-        raise NotImplementedError("Exact hosted target-logprob adapters are not implemented in v0.1")
+        raise NotImplementedError("Exact hosted target-logprob adapters are not implemented")

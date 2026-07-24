@@ -84,3 +84,52 @@ def test_collector_rejects_output_outside_manifest_directory(tmp_path: Path) -> 
 
     with pytest.raises(ValueError, match="inside the manifest directory"):
         collect_catalog(catalog, tmp_path / "outside", tmp_path / "suite" / "manifest.jsonl")
+
+
+def test_collector_rejects_empty_catalog(tmp_path: Path) -> None:
+    catalog = tmp_path / "catalog.json"
+    catalog.write_text(json.dumps({"sources": []}), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="at least one source"):
+        collect_catalog(
+            catalog,
+            tmp_path / "suite" / "documents",
+            tmp_path / "suite" / "manifest.jsonl",
+        )
+
+
+def test_collector_rejects_duplicate_output_paths(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    raw = b"shared source\n"
+    source = {
+        "domain": "prose",
+        "title": "Fixture",
+        "language": "en",
+        "url": "https://example.test/doc",
+        "source_sha256": hashlib.sha256(raw).hexdigest(),
+        "license": "fixture",
+        "license_url": "https://example.test/license",
+        "output": "same.txt",
+        "transform": {"kind": "identity"},
+    }
+    catalog = tmp_path / "catalog.json"
+    catalog.write_text(
+        json.dumps(
+            {
+                "sources": [
+                    {"id": "one", **source},
+                    {"id": "two", **source},
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("cbench.data.collection.download_source", lambda url: raw)
+
+    with pytest.raises(ValueError, match="duplicate output paths"):
+        collect_catalog(
+            catalog,
+            tmp_path / "suite" / "documents",
+            tmp_path / "suite" / "manifest.jsonl",
+        )

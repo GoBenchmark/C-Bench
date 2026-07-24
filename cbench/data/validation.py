@@ -12,7 +12,7 @@ def sha256_bytes(raw: bytes) -> str:
 
 def validate_streaming_entry(entry: ManifestEntry, manifest_path: str | Path) -> None:
     if entry.mode != "streaming":
-        raise ValueError(f"{entry.id}: only streaming mode is fully supported in v0.1")
+        raise ValueError(f"{entry.id}: only streaming mode is supported")
     if not entry.path:
         raise ValueError(f"{entry.id}: streaming entry must include path")
     if not entry.sha256:

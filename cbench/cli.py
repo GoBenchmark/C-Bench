@@ -118,9 +118,11 @@ def _cmd_collect(args: argparse.Namespace) -> int:
 
 
 def _cmd_baseline(args: argparse.Namespace) -> int:
+    compressors = [item.strip() for item in args.compressors.split(",") if item.strip()]
+    if not compressors:
+        raise SystemExit("--compressors must contain at least one compressor name")
     config = load_suite_config(args.suite)
     entries = validate_suite(config)
-    compressors = [item.strip() for item in args.compressors.split(",") if item.strip()]
     documents, warnings = run_baselines(entries, config.manifest_path, compressors)
 
     runs: list[dict[str, Any]] = []

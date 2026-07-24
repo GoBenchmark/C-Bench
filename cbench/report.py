@@ -1,12 +1,19 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 from typing import Any
 
 
+SUPPORTED_RUN_TYPES = {"generation_track", "api_track", "hf_model", "baseline"}
+
+
 def load_run(path: str | Path) -> dict[str, Any]:
-    return json.loads(Path(path).read_text(encoding="utf-8"))
+    run = json.loads(Path(path).read_text(encoding="utf-8"))
+    if not isinstance(run, dict):
+        raise ValueError(f"{path}: expected a JSON object")
+    return run
 
 
 def render_markdown(runs: list[dict[str, Any]]) -> str:
@@ -14,6 +21,7 @@ def render_markdown(runs: list[dict[str, Any]]) -> str:
     if not runs:
         lines.append("No runs supplied.")
         return "\n".join(lines) + "\n"
+    _validate_runs(runs)
 
     generation_runs = _sort_generation_runs(
         [run for run in runs if run.get("run_type") == "generation_track"]
@@ -21,8 +29,9 @@ def render_markdown(runs: list[dict[str, Any]]) -> str:
     api_runs = _sort_api_runs(
         [run for run in runs if run.get("run_type") == "api_track"]
     )
-    diagnostic_types = {"api_track", "generation_track"}
-    exact_runs = [run for run in runs if run.get("run_type") not in diagnostic_types]
+    exact_runs = [
+        run for run in runs if run.get("run_type") in {"hf_model", "baseline"}
+    ]
 
     lines.extend(
         [
@@ -133,7 +142,11 @@ def write_report(input_paths: list[str | Path], output_path: str | Path) -> None
     runs: list[dict[str, Any]] = []
     for path in input_paths:
         run = load_run(path)
-        if isinstance(run.get("runs"), list):
+        if run.get("run_type") == "baseline_collection":
+            if not isinstance(run.get("runs"), list):
+                raise ValueError(f"{path}: baseline collection must contain a runs list")
+            if not all(isinstance(item, dict) for item in run["runs"]):
+                raise ValueError(f"{path}: 'runs' must contain JSON objects")
             runs.extend(run["runs"])
         else:
             runs.append(run)
@@ -162,6 +175,48 @@ def _escape_cell(value: str) -> str:
 
 def _heading(value: Any) -> str:
     return " ".join(str(value).replace("\r", " ").replace("\n", " ").split())
+
+
+def _validate_runs(runs: list[dict[str, Any]]) -> None:
+    for index, run in enumerate(runs, start=1):
+        if not isinstance(run, dict):
+            raise ValueError(f"run {index} must be a JSON object")
+        run_type = run.get("run_type")
+        if run_type not in SUPPORTED_RUN_TYPES:
+            raise ValueError(f"run {index} has unsupported run_type: {run_type!r}")
+        model = run.get("model")
+        if model is not None and not isinstance(model, dict):
+            raise ValueError(f"run {index} model must be a JSON object")
+        scores = run.get("scores")
+        if not isinstance(scores, dict):
+            raise ValueError(f"run {index} must contain a scores object")
+        if run_type == "generation_track":
+            _score_value(
+                scores.get("cbench_score"),
+                f"run {index} cbench_score",
+                maximum=100.0,
+            )
+        elif run_type == "api_track":
+            _score_value(
+                scores.get("cbench_api_score"),
+                f"run {index} cbench_api_score",
+                maximum=100.0,
+            )
+        else:
+            _score_value(scores.get("macro_bpb"), f"run {index} macro_bpb")
+            _score_value(scores.get("micro_bpb"), f"run {index} micro_bpb")
+
+
+def _score_value(value: Any, label: str, *, maximum: float | None = None) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{label} must be a number")
+    number = float(value)
+    if not math.isfinite(number):
+        raise ValueError(f"{label} must be finite")
+    if number < 0 or (maximum is not None and number > maximum):
+        bounds = f" between 0 and {maximum:g}" if maximum is not None else " non-negative"
+        raise ValueError(f"{label} must be{bounds}")
+    return number
 
 
 def _sort_api_runs(runs: list[dict[str, Any]]) -> list[dict[str, Any]]:

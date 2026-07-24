@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
+import math
 from typing import Any, Iterable
 
 
@@ -34,12 +35,15 @@ class DocumentScore:
 
 
 def bits_per_byte(bits: float, byte_count: int) -> float:
+    if not math.isfinite(bits) or bits < 0:
+        raise ValueError("bits must be finite and non-negative")
     if byte_count <= 0:
         raise ValueError("byte_count must be positive")
     return bits / byte_count
 
 
 def compression_ratio_raw(bpb: float) -> float:
+    _validate_bpb(bpb)
     return bpb / RAW_BPB
 
 
@@ -49,8 +53,7 @@ def bpb_to_score_100(bpb: float) -> float:
     The anchors are 0 BPB -> 100, raw bytes (8 BPB) -> 50, and
     16 BPB -> 0. Clipping only applies outside the published scale range.
     """
-    if bpb < 0:
-        raise ValueError("bpb must be non-negative")
+    _validate_bpb(bpb)
     return max(0.0, min(100.0, 100.0 * (1.0 - bpb / SCORE_ZERO_BPB)))
 
 
@@ -118,6 +121,13 @@ def aggregate_scores(documents: Iterable[DocumentScore], *, bootstrap_ci: tuple[
 
 
 def relative_gain(reference_bpb: float, model_bpb: float) -> float:
-    if reference_bpb <= 0:
+    _validate_bpb(reference_bpb)
+    _validate_bpb(model_bpb)
+    if reference_bpb == 0:
         raise ValueError("reference_bpb must be positive")
     return (reference_bpb - model_bpb) / reference_bpb
+
+
+def _validate_bpb(bpb: float) -> None:
+    if not math.isfinite(bpb) or bpb < 0:
+        raise ValueError("bpb must be finite and non-negative")

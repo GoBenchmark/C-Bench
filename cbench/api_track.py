@@ -55,6 +55,8 @@ def load_api_cases(path: str | Path) -> list[ApiChoiceCase]:
             raise ValueError(
                 f"{case_id}: expected {API_CANDIDATE_COUNT} candidates, got {len(candidates)}"
             )
+        if len(set(candidates)) != API_CANDIDATE_COUNT:
+            raise ValueError(f"{case_id}: candidates must be unique")
         answer = row.get("answer")
         if not isinstance(answer, int) or isinstance(answer, bool):
             raise ValueError(f"{case_id}: answer must be an integer")
@@ -119,6 +121,8 @@ def score_api_track(
             raise ValueError(
                 f"{case.id}: expected {API_CANDIDATE_COUNT} non-empty candidates"
             )
+        if len(set(case.candidates)) != API_CANDIDATE_COUNT:
+            raise ValueError(f"{case.id}: candidates must be unique")
         if (
             not isinstance(case.answer, int)
             or isinstance(case.answer, bool)
