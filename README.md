@@ -4,22 +4,25 @@
 
 ## Principle
 
-For a sequence $x=(x_1,\ldots,x_T)$, an autoregressive model defines
+For a sequence of tokens, an autoregressive model defines
 
-$$
-\begin{aligned}
-P_\theta(x)
-  &= \prod_{t=1}^{T} P_\theta(x_t \mid x_{<t}), \\
-L_\theta(x)
-  &= -\log_2 P_\theta(x) \\
-  &= -\sum_{t=1}^{T}\log_2 P_\theta(x_t \mid x_{<t}).
-\end{aligned}
-$$
+```math
+P_\theta(x) = \prod_{t=1}^{T} P_\theta(x_t \mid x_1,\ldots,x_{t-1})
+```
 
-By source coding, $L_\theta(x)$ is the ideal lossless code length. C-Bench
-normalizes it as $\mathrm{BPB}=L_\theta(x)/|x|_{\mathrm{bytes}}$: better
-prediction means fewer bits. Therefore, **a better language model is a better
-general-purpose predictive compressor**.
+By source coding, its ideal lossless code length and normalized cost are
+
+```math
+L_\theta(x) = -\log_2 P_\theta(x)
+            = -\sum_{t=1}^{T}\log_2 P_\theta(x_t \mid x_1,\ldots,x_{t-1})
+```
+
+```math
+\mathrm{BPB}(x) = \frac{L_\theta(x)}{\lvert x\rvert_{\mathrm{bytes}}}
+```
+
+Better prediction means fewer bits. Therefore, **a better language model is a
+better general-purpose predictive compressor**.
 
 C-Bench averages BPB across domains, reports reproducible metadata, and uses
 hidden evaluation data to measure generalization rather than memorization.
