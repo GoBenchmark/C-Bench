@@ -79,6 +79,8 @@ This table contains reproducible community submissions evaluated on released
 public suites. Public results remain separate from private official evaluations.
 Each submission should include the model identity, suite, reasoning and tool
 settings, raw continuations, and a verifiable report.
+Submit a result through the
+[Public Result Submission issue form](https://github.com/GoBenchmark/C-Bench/issues/new?template=public-result.yml).
 
 | Rank | Model | Submitted by | Suite | C-Bench Score | Similarity | Evidence | Status |
 |---:|---|---|---|---:|---:|---|---|

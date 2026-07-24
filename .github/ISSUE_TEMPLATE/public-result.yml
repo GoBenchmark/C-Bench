@@ -1,0 +1,100 @@
+name: Public Result Submission
+description: Submit a reproducible C-Bench result from a released public suite.
+title: "[Public result]: "
+labels:
+  - public-result
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form only for results from released public C-Bench suites.
+        Public results are reviewed for reproducibility and remain separate from official evaluations.
+
+  - type: input
+    id: model
+    attributes:
+      label: Model
+      description: Give the exact model name or snapshot identifier.
+      placeholder: example-model-2026-07-01
+    validations:
+      required: true
+
+  - type: input
+    id: access
+    attributes:
+      label: Provider and access setting
+      description: Include the provider, API or local access, and relevant endpoint.
+      placeholder: Provider API, Responses endpoint
+    validations:
+      required: true
+
+  - type: dropdown
+    id: suite
+    attributes:
+      label: Public suite
+      options:
+        - public_dev generation suite
+    validations:
+      required: true
+
+  - type: input
+    id: reasoning
+    attributes:
+      label: Reasoning effort
+      description: Record the exact reasoning-effort setting, or state that none was available.
+      placeholder: medium
+    validations:
+      required: true
+
+  - type: input
+    id: score
+    attributes:
+      label: C-Bench Score
+      description: Enter the main 0-100 score from cbench generation-score.
+      placeholder: "23.45"
+    validations:
+      required: true
+
+  - type: input
+    id: similarity
+    attributes:
+      label: Macro continuation similarity
+      description: Enter the macro similarity reported by C-Bench.
+      placeholder: "0.7981"
+    validations:
+      required: true
+
+  - type: textarea
+    id: settings
+    attributes:
+      label: Run settings
+      description: Include the C-Bench version, prompt template, output limit, sampling settings, and whether tools, retrieval, browsing, and memory were disabled.
+      placeholder: |
+        C-Bench version:
+        Prompt template:
+        Output limit:
+        Sampling:
+        Tools/retrieval/browsing/memory:
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Report and raw continuations
+      description: Drag in or link the generated JSON report and raw JSONL continuation file. Do not paste private test material.
+      placeholder: Attach files or provide stable public links.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Submission confirmations
+      options:
+        - label: I used only a released public suite and did not show targets to the model.
+          required: true
+        - label: I attached or linked the raw continuations and generated report.
+          required: true
+        - label: I understand this is a Public Leaderboard submission, not an official evaluation.
+          required: true
