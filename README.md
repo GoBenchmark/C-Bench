@@ -1,6 +1,6 @@
 # C-Bench: Measuring Language Models Through Compression
 
-![C-Bench predictive compression](docs/assets/cbench-predictive-compression.png)
+![C-Bench poster showing predictive compression and the benchmark score equation](docs/assets/cbench-poster.png)
 
 ## Principle
 
