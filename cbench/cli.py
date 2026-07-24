@@ -11,6 +11,11 @@ from cbench.bootstrap import bootstrap_macro_bpb_ci
 from cbench.compressors.baselines import run_baselines
 from cbench.data.manifest import load_suite_config
 from cbench.data.validation import validate_suite
+from cbench.generation_track import (
+    load_generation_cases,
+    load_generation_predictions,
+    score_generation_track,
+)
 from cbench.metrics import DocumentScore, aggregate_scores, domain_breakdown
 from cbench.providers.capabilities import (
     api_track_model_metadata,
@@ -58,6 +63,17 @@ def main(argv: list[str] | None = None) -> int:
     api_score_parser.add_argument("--reasoning-effort")
     api_score_parser.add_argument("--output", required=True)
 
+    generation_score_parser = subparsers.add_parser(
+        "generation-score",
+        help="Calculate the main C-Bench Score from generated continuations",
+    )
+    generation_score_parser.add_argument("--cases", required=True)
+    generation_score_parser.add_argument("--predictions", required=True)
+    generation_score_parser.add_argument("--suite", required=True)
+    generation_score_parser.add_argument("--model", required=True)
+    generation_score_parser.add_argument("--reasoning-effort")
+    generation_score_parser.add_argument("--output", required=True)
+
     report_parser = subparsers.add_parser("report", help="Generate Markdown report")
     report_parser.add_argument("--inputs", nargs="+", required=True)
     report_parser.add_argument("--output", required=True)
@@ -73,6 +89,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_score(args)
     if args.command == "api-score":
         return _cmd_api_score(args)
+    if args.command == "generation-score":
+        return _cmd_generation_score(args)
     if args.command == "report":
         return _cmd_report(args)
     raise AssertionError(f"Unhandled command {args.command}")
@@ -219,6 +237,38 @@ def _cmd_api_score(args: argparse.Namespace) -> int:
     print(
         f"C-Bench API Score: {scored['scores']['cbench_api_score']:.2f} "
         f"({scored['scores']['correct']}/{scored['scores']['cases']} correct)"
+    )
+    print(f"Wrote {args.output}")
+    return 0
+
+
+def _cmd_generation_score(args: argparse.Namespace) -> int:
+    cases = load_generation_cases(args.cases)
+    predictions = load_generation_predictions(args.predictions)
+    scored = score_generation_track(cases, predictions)
+    output = {
+        "benchmark_version": f"cbench-{__version__}",
+        "run_type": "generation_track",
+        "suite": args.suite,
+        "model": api_track_model_metadata(
+            name=args.model,
+            access_tier="black-box-chat-only",
+            reasoning_effort=args.reasoning_effort,
+        ),
+        "scores": scored["scores"],
+        "domain_breakdown": scored["domain_breakdown"],
+        "results": scored["results"],
+        "settings": {
+            "similarity": "difflib.SequenceMatcher over UTF-8 bytes",
+            "score_nines": scored["scores"]["score_nines"],
+            "tools": "disabled",
+            "retrieval": "disabled",
+        },
+    }
+    _write_json(args.output, output)
+    print(
+        f"C-Bench Score: {scored['scores']['cbench_score']:.2f} "
+        f"(similarity {scored['scores']['macro_similarity']:.3%})"
     )
     print(f"Wrote {args.output}")
     return 0

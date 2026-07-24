@@ -10,9 +10,9 @@ Policy:
   and `model/xhigh`.
 - Reports include `reasoning_effort`, reasoning tokens if available, latency,
   and estimated cost.
-- API Track leaderboard entries must use a fixed documented setting and disable
+- Generation Track entries must use a fixed documented setting and disable
   tools, retrieval, browsing, and memory.
-- Reasoning effort may improve predictive-choice accuracy, but its cost and
+- Reasoning effort may improve continuation similarity, but its cost and
   latency remain separate reported quantities.
 - Exact compression diagnostics may use reasoning settings only when the model
   returns target-token logprobs; those diagnostics are not leaderboard entries.

@@ -1,47 +1,54 @@
 # C-Bench Benchmark Spec
 
-C-Bench measures whether a language model can identify the true continuation
-of unseen data. The public ranking metric is the C-Bench API Score.
+C-Bench measures how closely a language model predicts the true continuation
+of unseen data. The public ranking metric is C-Bench Score.
 
-## API Track
+## Generation Track
 
 Each case contains:
 
 - a context;
-- four same-domain candidate continuations;
-- exactly one true continuation;
-- a hidden answer index.
+- a hidden target continuation;
+- a domain label.
 
-The evaluator randomizes candidate order and disables tools, retrieval, memory,
-and browsing. A model returns one integer choice from 0 through 3.
+The evaluator gives only the context to the model and disables tools, retrieval,
+memory, and browsing. The model returns a continuation of the requested length.
 
-Accuracy is calculated separately for each domain. Macro accuracy gives every
-domain equal weight:
-
-```text
-Macro Accuracy = mean(domain accuracy)
-```
-
-The leaderboard score removes the 25% random-guessing baseline:
+Similarity is `difflib.SequenceMatcher` ratio over the target and prediction's
+UTF-8 bytes. It is calculated separately for each domain so every domain has
+equal weight:
 
 ```text
-C-Bench API Score =
-    clip(100 * (Macro Accuracy - 0.25) / 0.75, 0, 100)
+Macro Similarity = mean(domain mean similarity)
 ```
 
-The anchors are:
+The main score measures decimal orders of mismatch reduction:
 
-- 25% macro accuracy = 0 points: random guessing
-- 62.5% macro accuracy = 50 points
-- 100% macro accuracy = 100 points
+```text
+C-Bench Score =
+    100 * min(1, log10(1 / (1 - Macro Similarity)) / 3)
+```
 
-Missing choices count as incorrect. Duplicate IDs, unknown IDs, malformed
-records, and out-of-range choices invalidate the submission. Reports include
-macro and micro accuracy, correct and answered counts, domain results, and a
-95% bootstrap confidence interval.
+Perfect similarity is defined as 100. The scale anchors are:
+
+- 0% similarity = 0 points
+- 90% similarity = 33.3 points
+- 99% similarity = 66.7 points
+- 99.9% similarity = 100 points
+
+Missing continuations receive zero similarity. Duplicate IDs, unknown IDs, and
+malformed records invalidate the submission. Reports include macro and micro
+similarity, exact-prefix fraction, exact-match rate, domain results, and a 95%
+bootstrap confidence interval.
 
 Different model snapshots, reasoning-effort settings, tool settings, and
 prompt templates are separate entries.
+
+## API Choice Diagnostics
+
+The repository retains four-choice continuation scoring for black-box
+experiments. Its chance-adjusted API Score and accuracy are supporting
+diagnostics and are not included in the Official or Public Leaderboard.
 
 ## Exact Compression Diagnostics
 
@@ -61,13 +68,7 @@ They score text selected by the model, not the supplied benchmark target.
 
 ## Case Construction
 
-Official cases use private, rotating source material. Distractors must:
-
-- match the true continuation's domain, format, and approximate length;
-- remain locally plausible after the context;
-- avoid obvious answer-only artifacts;
-- be permuted independently for each run;
-- pass duplicate and accidental-answer checks.
-
-The released `public_dev` API cases verify the scorer and submission format.
+Official cases use private, rotating source material and fixed context and
+target lengths. The target must immediately follow the context without gaps or
+normalization. The released `public_dev` generation cases verify the scorer.
 They are public, assumed contaminated, and not official leaderboard material.

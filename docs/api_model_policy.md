@@ -1,19 +1,20 @@
 # API Model Policy
 
-The C-Bench API Track is the only leaderboard track. It supports black-box
-models because scoring requires a selected continuation, not internal logits.
+The C-Bench Generation Track is the leaderboard track. It supports black-box
+models because scoring requires generated text, not internal logits. The
+four-choice API Track remains an unranked diagnostic.
 
 Required run controls:
 
-- exactly four candidates per case;
-- one integer choice from 0 through 3;
+- a fixed context and requested continuation length;
+- generated continuation text;
 - tools, browsing, retrieval, and memory disabled;
 - model snapshot and provider recorded;
 - reasoning effort recorded as a separate setting;
 - raw predictions retained for verification.
 
-Missing answers count as incorrect. Unknown case IDs, duplicate predictions,
-and out-of-range choices invalidate a submission.
+Missing continuations receive zero similarity. Unknown case IDs and duplicate
+predictions invalidate a submission.
 
 ## Exact Compression
 

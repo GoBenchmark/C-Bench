@@ -1,7 +1,7 @@
 # Provider Capability Registry
 
-Provider entries record how a model participates in the API Track and whether
-it also supports optional exact compression diagnostics.
+Provider entries record how a model participates in the Generation Track and
+whether it also supports optional API-choice and exact compression diagnostics.
 
 Required fields:
 
@@ -24,7 +24,7 @@ Required fields:
 }
 ```
 
-All black-box text APIs can participate in the API Track if they can return a
-choice with tools and retrieval disabled. Exact diagnostic scoring additionally
-requires target or prompt logprobs, token byte/offset information, and fixed
-model identity.
+All black-box text APIs can participate in the Generation Track if they can
+return continuation text with tools and retrieval disabled. Exact diagnostic
+scoring additionally requires target or prompt logprobs, token byte/offset
+information, and fixed model identity.

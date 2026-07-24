@@ -26,21 +26,22 @@ L_\theta(x) = -\log_2 P_\theta(x)
 
 Better prediction means fewer bits.
 
-C-Bench applies this principle through a black-box predictive-choice test. For
-each hidden context, a model selects the true next passage from four
-same-domain candidates. Candidate order is randomized and tools and retrieval
-are disabled.
+C-Bench applies this principle through black-box continuation prediction. For
+each hidden context, a model generates the next passage with tools and retrieval
+disabled. The prediction is compared with the true continuation over UTF-8
+bytes.
 
-If $A$ is mean accuracy across domains, the leaderboard score is
+If $s$ is mean continuation similarity across domains, the leaderboard score is
 
 ```math
-\mathrm{C\text{-}Bench\ API\ Score}
-=100\min\left(1,\max\left(0,\frac{A-0.25}{0.75}\right)\right).
+\mathrm{C\text{-}Bench\ Score}
+=100\min\left(1,\frac{\log_{10}\left(1/(1-s)\right)}{3}\right).
 ```
 
-Random guessing scores 0, perfect prediction scores 100, and higher is better.
-The exact BPB implementation remains available for compression research, but
-exact results are not shown in either leaderboard.
+Perfect similarity is defined to score 100. Every tenfold reduction in mismatch
+adds 33.3 points: 90% similarity scores 33.3, 99% scores 66.7, and 99.9% scores
+100. Higher is better. Exact BPB and four-choice API scoring remain available
+as unranked diagnostics.
 
 This repository is a small reference implementation. It releases only the
 `public_dev` suite so people can install C-Bench, test the implementation, and
@@ -54,33 +55,30 @@ leaderboard evaluations. See `docs/public_dev.md` and
 
 ## Leaderboards
 
-The only ranking metric is **C-Bench API Score**, a chance-adjusted 0-100
-predictive-choice score. Different reasoning-effort settings are separate
-entries. Continuation similarity and exact BPB results are not leaderboard
-metrics.
+The only ranking metric is **C-Bench Score**, a log-scaled 0-100 score derived
+from macro continuation similarity. Different reasoning-effort settings are
+separate entries. Prefix match, exact-match rate, four-choice accuracy, and
+exact BPB are supporting diagnostics.
 
-### Official C-Bench API Leaderboard
+### Official C-Bench Leaderboard
 
 Official cases and answer keys are private and are not published in this
-repository. Maintainer-controlled runs use hidden, rotating cases. The archived
-entries below were completed before the four-choice API Track protocol was
-adopted. Their saved continuation evidence is retained, but it cannot be
-converted into C-Bench API Score and does not determine rank.
+repository. Maintainer-controlled runs use hidden, rotating continuations.
 
-| Rank | Model | Access / setting | Suite | C-Bench API Score | Macro accuracy | Evidence | Status |
-|---:|---|---|---|---:|---:|---|---|
-| - | gpt-5.6-sol | OpenAI API / xhigh | official_v1 | - | - | 12/12 completed; 0.866 continuation similarity | Archived pre-API Track run |
-| - | gpt-5.6-luna | OpenAI API / xhigh | official_v1 | - | - | 12/12 completed; 0.747 continuation similarity | Archived pre-API Track run |
-| - | gpt-5.6-terra | OpenAI API / xhigh | official_v1 | - | - | 12/12 completed; 0.722 continuation similarity | Archived pre-API Track run |
+| Rank | Model | Access / setting | Suite | C-Bench Score | Similarity | Prefix | Exact | Evidence |
+|---:|---|---|---|---:|---:|---:|---:|---|
+| 1 | gpt-5.6-sol | OpenAI API / xhigh | official_v1 | **29.13** | 86.63% | 65.51% | 5/12 | Maintainer run; 12/12 completed |
+| 2 | gpt-5.6-luna | OpenAI API / xhigh | official_v1 | **19.88** | 74.67% | 41.48% | 0/12 | Maintainer run; 12/12 completed |
+| 3 | gpt-5.6-terra | OpenAI API / xhigh | official_v1 | **18.55** | 72.23% | 46.26% | 1/12 | Maintainer run; 12/12 completed |
 
 ### Public Leaderboard
 
 This table contains reproducible community submissions evaluated on released
 public suites. Public results remain separate from private official evaluations.
 Each submission should include the model identity, suite, reasoning and tool
-settings, raw choices, and a verifiable report.
+settings, raw continuations, and a verifiable report.
 
-| Rank | Model | Submitted by | Suite | C-Bench API Score | Macro accuracy | Evidence | Status |
+| Rank | Model | Submitted by | Suite | C-Bench Score | Similarity | Evidence | Status |
 |---:|---|---|---|---:|---:|---|---|
 | - | No validated submissions yet | - | - | - | - | - | Open for submissions |
 
@@ -116,41 +114,46 @@ cbench validate --suite configs/public_dev.yaml
 
 You should see `Validated 4 entries for suite public_dev`.
 
-### 4. Create model predictions
+### 4. Create model continuations
 
-The released API development cases are in
-`datasets/public_dev_api_cases.jsonl`. Give each case's `context` and four
-numbered `candidates` to a model, then save one choice per line:
+The released development cases are in
+`datasets/public_dev_generation_cases.jsonl`. Give each case's `context` to a
+model without showing it the `target`, then save one continuation per line:
 
 ```json
-{"id":"public_dev_prose_001","choice":3}
+{"id":"public_dev_prose_001","continuation":" predicted text"}
 ```
 
-Use zero-based choices from 0 through 3. A complete example prediction file is
-included to verify the command; it is not a model result.
+A complete empty prediction file is included to verify the command; it is not a
+model result.
 
-### 5. Calculate the C-Bench API Score
+### 5. Calculate the C-Bench Score
 
 ```bash
-cbench api-score \
-  --cases datasets/public_dev_api_cases.jsonl \
-  --predictions datasets/public_dev_api_predictions.example.jsonl \
-  --suite public_dev_api \
+cbench generation-score \
+  --cases datasets/public_dev_generation_cases.jsonl \
+  --predictions datasets/public_dev_generation_predictions.example.jsonl \
+  --suite public_dev_generation \
   --model example-model \
   --reasoning-effort medium \
-  --output runs/example-api-score.json
+  --output runs/example-generation-score.json
 ```
 
 Generate a readable leaderboard report:
 
 ```bash
 cbench report \
-  --inputs runs/example-api-score.json \
-  --output reports/public_dev_api_report.md
+  --inputs runs/example-generation-score.json \
+  --output reports/public_dev_generation_report.md
 ```
 
-The report shows C-Bench API Score, its confidence interval, macro accuracy,
-correct choices, and domain results.
+The report shows C-Bench Score, its confidence interval, macro similarity,
+prefix match, exact-match rate, and domain results.
+
+### Optional API choice diagnostics
+
+The four-choice `cbench api-score` command remains available for black-box
+choice experiments, but it does not produce the main leaderboard score.
 
 ### Optional exact compression diagnostics
 
@@ -179,6 +182,6 @@ python -m pip install -e '.[zstd,brotli]'
 ## Submission Policy
 
 Leaderboard submissions must include the model identity, reasoning effort,
-suite version, raw choice file, generated report, and tools/retrieval settings.
+suite version, raw continuation file, generated report, and tools/retrieval settings.
 Official submissions are rescored against private cases. Public development
 scores are kept in the Public Leaderboard and cannot become official results.

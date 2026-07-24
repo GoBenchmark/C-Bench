@@ -15,55 +15,91 @@ def render_markdown(runs: list[dict[str, Any]]) -> str:
         lines.append("No runs supplied.")
         return "\n".join(lines) + "\n"
 
+    generation_runs = _sort_generation_runs(
+        [run for run in runs if run.get("run_type") == "generation_track"]
+    )
     api_runs = _sort_api_runs(
         [run for run in runs if run.get("run_type") == "api_track"]
     )
-    exact_runs = [run for run in runs if run.get("run_type") != "api_track"]
+    diagnostic_types = {"api_track", "generation_track"}
+    exact_runs = [run for run in runs if run.get("run_type") not in diagnostic_types]
 
     lines.extend(
         [
-            "## API Track Leaderboard",
+            "## C-Bench Leaderboard",
             "",
-            "> C-Bench API Score is 0-100 and chance-adjusted. Higher is better.",
+            "> C-Bench Score is a 0-100 log-scaled macro continuation-similarity "
+            "score. Higher is better.",
             "",
-            "| Rank | Model | Setting | C-Bench API Score ↑ | Score 95% CI | Macro accuracy ↑ | Correct | Notes |",
-            "|---:|---|---|---:|---:|---:|---:|---|",
+            "| Rank | Model | Setting | C-Bench Score ↑ | Score 95% CI | "
+            "Similarity ↑ | Prefix ↑ | Exact | Notes |",
+            "|---:|---|---|---:|---:|---:|---:|---:|---|",
         ]
     )
-    if not api_runs:
-        lines.append("| - | No API Track runs supplied | - | - | - | - | - | - |")
-    for rank, run in enumerate(api_runs, start=1):
+    if not generation_runs:
+        lines.append(
+            "| - | No generation-track runs supplied | - | - | - | - | - | - | - |"
+        )
+    for rank, run in enumerate(generation_runs, start=1):
         model = run.get("model", {})
         label = model.get("name") or run.get("suite") or "run"
         setting = model.get("reasoning_effort") or "default"
         scores = run.get("scores", {})
-        score = scores.get("cbench_api_score")
-        score_ci = scores.get("score_100_ci_95")
-        macro_accuracy = scores.get("macro_accuracy")
-        correct = f"{scores.get('correct', 0)}/{scores.get('cases', 0)}"
-        notes = model.get("access_tier") or ""
+        exact = f"{scores.get('exact', 0)}/{scores.get('cases', 0)}"
         lines.append(
-            f"| {rank} | {_fmt(label)} | {_fmt(setting)} | {_fmt(score)} "
-            f"| {_fmt_ci(score_ci)} | {_fmt(macro_accuracy)} | {_fmt(correct)} "
-            f"| {_fmt(notes)} |"
+            f"| {rank} | {_fmt(label)} | {_fmt(setting)} "
+            f"| {_fmt(scores.get('cbench_score'))} "
+            f"| {_fmt_ci(scores.get('score_100_ci_95'))} "
+            f"| {_fmt(scores.get('macro_similarity'))} "
+            f"| {_fmt(scores.get('macro_prefix'))} | {_fmt(exact)} "
+            f"| {_fmt(model.get('access_tier') or '')} |"
         )
 
-    for run in api_runs:
+    for run in generation_runs:
         label = run.get("model", {}).get("name") or run.get("suite", "run")
         lines.extend(["", f"## {_heading(label)}", ""])
         if run.get("domain_breakdown"):
             lines.extend(
                 [
-                    "| Domain | Cases | Answered | Correct | Accuracy ↑ | API Score ↑ |",
-                    "|---|---:|---:|---:|---:|---:|",
+                    "| Domain | Cases | Answered | C-Bench Score ↑ | "
+                    "Similarity ↑ | Prefix ↑ | Exact |",
+                    "|---|---:|---:|---:|---:|---:|---:|",
                 ]
             )
             for row in run["domain_breakdown"]:
                 lines.append(
                     f"| {_fmt(row['domain'])} | {_fmt(row.get('cases'))} "
-                    f"| {_fmt(row.get('answered'))} | {_fmt(row.get('correct'))} "
-                    f"| {_fmt(row.get('accuracy'))} | {_fmt(row.get('api_score_100'))} |"
+                    f"| {_fmt(row.get('answered'))} "
+                    f"| {_fmt(row.get('cbench_score'))} "
+                    f"| {_fmt(row.get('similarity'))} "
+                    f"| {_fmt(row.get('prefix'))} | {_fmt(row.get('exact'))} |"
                 )
+
+    if api_runs:
+        lines.extend(
+            [
+                "",
+                "## API Choice Diagnostics",
+                "",
+                "These four-choice results are retained as supporting diagnostics. "
+                "They are not leaderboard entries.",
+                "",
+                "| Model | Setting | API Score ↑ | Macro accuracy ↑ | Correct | Notes |",
+                "|---|---|---:|---:|---:|---|",
+            ]
+        )
+    for run in api_runs:
+        model = run.get("model", {})
+        scores = run.get("scores", {})
+        correct = f"{scores.get('correct', 0)}/{scores.get('cases', 0)}"
+        lines.append(
+            f"| {_fmt(model.get('name') or run.get('suite') or 'run')} "
+            f"| {_fmt(model.get('reasoning_effort') or 'default')} "
+            f"| {_fmt(scores.get('cbench_api_score'))} "
+            f"| {_fmt(scores.get('macro_accuracy'))} "
+            f"| {_fmt(correct)} "
+            f"| {_fmt(model.get('access_tier') or '')} |"
+        )
 
     if exact_runs:
         lines.extend(
@@ -132,6 +168,14 @@ def _sort_api_runs(runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     def sort_key(run: dict[str, Any]) -> tuple[bool, float]:
         scores = run.get("scores", {})
         score = scores.get("cbench_api_score")
+        return (score is not None, float(score) if score is not None else 0.0)
+
+    return sorted(runs, key=sort_key, reverse=True)
+
+
+def _sort_generation_runs(runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    def sort_key(run: dict[str, Any]) -> tuple[bool, float]:
+        score = run.get("scores", {}).get("cbench_score")
         return (score is not None, float(score) if score is not None else 0.0)
 
     return sorted(runs, key=sort_key, reverse=True)

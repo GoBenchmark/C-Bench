@@ -1,13 +1,14 @@
 # Prompt for an AI Engineering Agent: Build C-Bench v0.2 Reference Implementation
 
 > **Historical build prompt.** This document describes the v0.2 exact
-> compression implementation. In v0.3, the C-Bench API Track is the only
-> leaderboard track. Exact BPB code remains available as an unranked diagnostic.
+> compression implementation. The current leaderboard uses log-scaled macro
+> continuation similarity. API-choice and Exact BPB code remain as unranked
+> diagnostics.
 > See `docs/benchmark_spec.md` for the current scoring contract.
 
 You are an expert ML systems engineer and benchmark designer. Your task is to build the first working version of **C-Bench**, an LLM-as-compressor benchmark.
 
-C-Bench v0.3 uses the chance-adjusted C-Bench API Score for its public
+Current C-Bench uses log-scaled continuation similarity for its public
 leaderboards. This historical v0.2 contract built the retained BPB diagnostic
 path, where lower BPB means better exact compression.
 
