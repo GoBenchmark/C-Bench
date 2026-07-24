@@ -4,6 +4,9 @@
 
 ## Principle
 
+**Compression and prediction are deeply equivalent. A better language model is
+a better general-purpose predictive compressor.**
+
 For a sequence of tokens, an autoregressive model defines
 
 ```math
@@ -21,8 +24,7 @@ L_\theta(x) = -\log_2 P_\theta(x)
 \mathrm{BPB}(x) = \frac{L_\theta(x)}{\lvert x\rvert_{\mathrm{bytes}}}
 ```
 
-Better prediction means fewer bits. Therefore, **a better language model is a
-better general-purpose predictive compressor**.
+Better prediction means fewer bits.
 
 C-Bench averages BPB across domains, reports reproducible metadata, and uses
 hidden evaluation data to measure generalization rather than memorization.
