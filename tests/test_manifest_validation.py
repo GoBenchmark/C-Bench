@@ -91,6 +91,7 @@ def test_manifest_validation_rejects_duplicate_ids(tmp_path: Path) -> None:
     ("changes", "message"),
     [
         ({"domain": "   "}, "empty domain"),
+        ({"id": 7}, "field 'id' must be a string"),
         ({"bytes": 0}, "at least one byte"),
         ({"path": "../doc.txt"}, "must stay relative"),
     ],

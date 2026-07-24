@@ -43,7 +43,7 @@ class ManifestEntry:
         missing = [field for field in required if field not in data]
         if missing:
             raise ValueError(f"Manifest entry missing required fields: {', '.join(missing)}")
-        for field in ("domain", "mode", "path", "sha256"):
+        for field in ("id", "domain", "mode", "path", "sha256"):
             value = data.get(field)
             if value is not None and not isinstance(value, str):
                 raise ValueError(f"Manifest entry field '{field}' must be a string")
@@ -52,9 +52,9 @@ class ManifestEntry:
         ):
             raise ValueError("Manifest entry field 'bytes' must be an integer")
         return cls(
-            id=str(data["id"]),
-            domain=str(data["domain"]),
-            mode=str(data["mode"]),
+            id=data["id"],
+            domain=data["domain"],
+            mode=data["mode"],
             path=data.get("path"),
             sha256=data.get("sha256"),
             license=data.get("license"),

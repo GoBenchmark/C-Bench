@@ -45,3 +45,17 @@ def test_reasoning_effort_metadata_keeps_entries_separate() -> None:
     assert low != high
     assert low["reasoning_effort"] == "low"
     assert high["reasoning_effort"] == "high"
+
+
+def test_capability_parser_rejects_string_booleans() -> None:
+    with pytest.raises(ValueError, match="must be a boolean"):
+        ProviderCapability.from_dict(
+            {
+                "provider": "example",
+                "endpoint_family": "chat",
+                "model": "example-model",
+                "access_tier": "black-box-chat-only",
+                "supports_supplied_target_logprobs": "false",
+                "max_context_tokens": 8192,
+            }
+        )

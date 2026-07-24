@@ -103,9 +103,48 @@ def score_api_track(
     if not case_rows:
         raise ValueError("at least one API Track case is required")
 
-    case_ids = {case.id for case in case_rows}
+    for case in case_rows:
+        if not isinstance(case.id, str) or not case.id.strip():
+            raise ValueError("API Track case id must be a non-empty string")
+        if not isinstance(case.domain, str) or not case.domain.strip():
+            raise ValueError(f"{case.id}: domain must be a non-empty string")
+        valid_candidates = isinstance(case.candidates, (list, tuple)) and len(
+            case.candidates
+        ) == API_CANDIDATE_COUNT
+        if valid_candidates:
+            valid_candidates = all(
+                isinstance(candidate, str) and candidate for candidate in case.candidates
+            )
+        if not valid_candidates:
+            raise ValueError(
+                f"{case.id}: expected {API_CANDIDATE_COUNT} non-empty candidates"
+            )
+        if (
+            not isinstance(case.answer, int)
+            or isinstance(case.answer, bool)
+            or not 0 <= case.answer < API_CANDIDATE_COUNT
+        ):
+            raise ValueError(f"{case.id}: answer is outside the candidate range")
+    case_ids = [case.id for case in case_rows]
+    if len(case_ids) != len(set(case_ids)):
+        raise ValueError("API Track cases contain duplicate case ids")
+
+    for prediction in prediction_rows:
+        if not isinstance(prediction.id, str) or not prediction.id.strip():
+            raise ValueError("prediction id must be a non-empty string")
+        if (
+            not isinstance(prediction.choice, int)
+            or isinstance(prediction.choice, bool)
+            or not 0 <= prediction.choice < API_CANDIDATE_COUNT
+        ):
+            raise ValueError(f"{prediction.id}: choice is outside the candidate range")
+    prediction_ids = [prediction.id for prediction in prediction_rows]
+    if len(prediction_ids) != len(set(prediction_ids)):
+        raise ValueError("API Track predictions contain duplicate prediction ids")
+
+    case_id_set = set(case_ids)
     prediction_by_id = {prediction.id: prediction for prediction in prediction_rows}
-    unknown = sorted(set(prediction_by_id) - case_ids)
+    unknown = sorted(set(prediction_by_id) - case_id_set)
     if unknown:
         raise ValueError(f"predictions contain unknown case ids: {', '.join(unknown)}")
 

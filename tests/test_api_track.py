@@ -61,3 +61,24 @@ def test_unknown_prediction_ids_are_rejected() -> None:
             [ApiChoicePrediction(id="unknown", choice=0)],
             bootstrap_samples=20,
         )
+
+
+def test_duplicate_in_memory_predictions_are_rejected() -> None:
+    with pytest.raises(ValueError, match="duplicate prediction ids"):
+        score_api_track(
+            [_case("known", "domain")],
+            [
+                ApiChoicePrediction(id="known", choice=0),
+                ApiChoicePrediction(id="known", choice=1),
+            ],
+            bootstrap_samples=20,
+        )
+
+
+def test_duplicate_in_memory_cases_are_rejected() -> None:
+    with pytest.raises(ValueError, match="duplicate case ids"):
+        score_api_track(
+            [_case("duplicate", "a"), _case("duplicate", "b")],
+            [],
+            bootstrap_samples=20,
+        )

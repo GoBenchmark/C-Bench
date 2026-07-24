@@ -93,9 +93,29 @@ def score_generation_track(
     if not case_rows:
         raise ValueError("at least one generation case is required")
 
-    case_ids = {case.id for case in case_rows}
+    for case in case_rows:
+        if not isinstance(case.id, str) or not case.id.strip():
+            raise ValueError("generation case id must be a non-empty string")
+        if not isinstance(case.domain, str) or not case.domain.strip():
+            raise ValueError(f"{case.id}: domain must be a non-empty string")
+        if not isinstance(case.target, str) or not case.target:
+            raise ValueError(f"{case.id}: target must be a non-empty string")
+    case_ids = [case.id for case in case_rows]
+    if len(case_ids) != len(set(case_ids)):
+        raise ValueError("generation cases contain duplicate case ids")
+
+    for prediction in prediction_rows:
+        if not isinstance(prediction.id, str) or not prediction.id.strip():
+            raise ValueError("prediction id must be a non-empty string")
+        if not isinstance(prediction.continuation, str):
+            raise ValueError(f"{prediction.id}: continuation must be a string")
+    prediction_ids = [prediction.id for prediction in prediction_rows]
+    if len(prediction_ids) != len(set(prediction_ids)):
+        raise ValueError("generation predictions contain duplicate prediction ids")
+
+    case_id_set = set(case_ids)
     prediction_by_id = {prediction.id: prediction for prediction in prediction_rows}
-    unknown = sorted(set(prediction_by_id) - case_ids)
+    unknown = sorted(set(prediction_by_id) - case_id_set)
     if unknown:
         raise ValueError(f"predictions contain unknown case ids: {', '.join(unknown)}")
 
@@ -218,6 +238,6 @@ def _load_jsonl(path: str | Path) -> list[dict[str, Any]]:
 
 def _required_string(row: dict[str, Any], key: str) -> str:
     value = row.get(key)
-    if not isinstance(value, str) or not value:
+    if not isinstance(value, str) or not value.strip():
         raise ValueError(f"{key} must be a non-empty string")
     return value

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import defaultdict
 import random
 from typing import Sequence
 
@@ -21,9 +22,17 @@ def bootstrap_macro_bpb_ci(
         raise ValueError("confidence must be between 0 and 1")
     rng = random.Random(seed)
     values: list[float] = []
-    n = len(documents)
+    grouped: dict[str, list[DocumentScore]] = defaultdict(list)
+    for document in documents:
+        grouped[document.domain].append(document)
     for _ in range(samples):
-        draw = [documents[rng.randrange(n)] for _ in range(n)]
+        draw = []
+        for domain in sorted(grouped):
+            domain_documents = grouped[domain]
+            draw.extend(
+                domain_documents[rng.randrange(len(domain_documents))]
+                for _ in domain_documents
+            )
         values.append(macro_bpb(draw))
     values.sort()
     alpha = 1.0 - confidence

@@ -31,13 +31,50 @@ class ProviderCapability:
     supports_token_bytes_or_offsets: bool
     max_context_tokens: int | None
     reasoning_effort_controls: list[str] = field(default_factory=list)
-    tools_can_be_disabled: bool = True
-    retrieval_can_be_disabled: bool = True
+    tools_can_be_disabled: bool = False
+    retrieval_can_be_disabled: bool = False
     date_verified: str | None = None
     verification_fixture_sha256: str | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ProviderCapability":
+        string_fields = ("provider", "endpoint_family", "model", "access_tier")
+        for key in string_fields:
+            if not isinstance(data.get(key), str) or not data[key].strip():
+                raise ValueError(f"Provider capability field '{key}' must be a string")
+
+        bool_fields = (
+            "supports_supplied_target_logprobs",
+            "supports_prompt_logprobs",
+            "supports_generated_logprobs_only",
+            "supports_token_bytes_or_offsets",
+            "tools_can_be_disabled",
+            "retrieval_can_be_disabled",
+        )
+        for key in bool_fields:
+            if key in data and not isinstance(data[key], bool):
+                raise ValueError(f"Provider capability field '{key}' must be a boolean")
+
+        max_context_tokens = data.get("max_context_tokens")
+        if max_context_tokens is not None and (
+            isinstance(max_context_tokens, bool)
+            or not isinstance(max_context_tokens, int)
+            or max_context_tokens <= 0
+        ):
+            raise ValueError(
+                "Provider capability field 'max_context_tokens' must be a positive integer"
+            )
+
+        reasoning_controls = data.get("reasoning_effort_controls", [])
+        if not isinstance(reasoning_controls, list) or not all(
+            isinstance(control, str) and control.strip()
+            for control in reasoning_controls
+        ):
+            raise ValueError(
+                "Provider capability field 'reasoning_effort_controls' "
+                "must be a list of strings"
+            )
+
         return cls(
             provider=str(data["provider"]),
             endpoint_family=str(data["endpoint_family"]),
@@ -47,8 +84,8 @@ class ProviderCapability:
             supports_prompt_logprobs=bool(data.get("supports_prompt_logprobs", False)),
             supports_generated_logprobs_only=bool(data.get("supports_generated_logprobs_only", False)),
             supports_token_bytes_or_offsets=bool(data.get("supports_token_bytes_or_offsets", False)),
-            max_context_tokens=data.get("max_context_tokens"),
-            reasoning_effort_controls=list(data.get("reasoning_effort_controls", [])),
+            max_context_tokens=max_context_tokens,
+            reasoning_effort_controls=list(reasoning_controls),
             tools_can_be_disabled=bool(data.get("tools_can_be_disabled", False)),
             retrieval_can_be_disabled=bool(data.get("retrieval_can_be_disabled", False)),
             date_verified=data.get("date_verified"),

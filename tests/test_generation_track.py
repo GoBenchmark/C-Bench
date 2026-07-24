@@ -65,3 +65,33 @@ def test_unknown_prediction_ids_are_rejected() -> None:
             [GenerationPrediction(id="unknown", continuation="abcd")],
             bootstrap_samples=20,
         )
+
+
+def test_duplicate_in_memory_predictions_are_rejected() -> None:
+    with pytest.raises(ValueError, match="duplicate prediction ids"):
+        score_generation_track(
+            [_case("known", "domain")],
+            [
+                GenerationPrediction(id="known", continuation="abcd"),
+                GenerationPrediction(id="known", continuation="wrong"),
+            ],
+            bootstrap_samples=20,
+        )
+
+
+def test_duplicate_in_memory_cases_are_rejected() -> None:
+    with pytest.raises(ValueError, match="duplicate case ids"):
+        score_generation_track(
+            [_case("duplicate", "a"), _case("duplicate", "b")],
+            [],
+            bootstrap_samples=20,
+        )
+
+
+def test_empty_in_memory_target_is_rejected_cleanly() -> None:
+    with pytest.raises(ValueError, match="target must be a non-empty string"):
+        score_generation_track(
+            [_case("empty", "domain", target="")],
+            [],
+            bootstrap_samples=20,
+        )

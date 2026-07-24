@@ -23,7 +23,7 @@
   "rows": 3,
   "score_transform": "100 * min(1, log10(1 / (1 - macro_similarity)) / 3)",
   "source_data": "cbench-official-leaderboard.csv",
-  "source_sha256": "8cc4b408954b837fa172f8f6fd8506662cb9f85df9fe3795460c86fa98ecfb60",
+  "source_sha256": "1c64f745d7ba833162f0d1237b226c00401d9caa683e3f7a63ed147b938af2a5",
   "validation_notes": [
     "The 183 mm width matches a common double-column figure.",
     "The validator's log-guard warning refers to the documented score formula; score inputs are validated by cbench.generation_track."

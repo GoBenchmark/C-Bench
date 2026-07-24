@@ -67,11 +67,11 @@ repository. Maintainer-controlled runs use hidden, rotating continuations.
 
 ![Official C-Bench leaderboard showing log-scaled scores for gpt-5.6-sol, gpt-5.6-luna, and gpt-5.6-terra](docs/assets/cbench-official-leaderboard.png)
 
-| Rank | Model | Access / setting | Suite | C-Bench Score | Similarity | Prefix | Exact | Evidence |
-|---:|---|---|---|---:|---:|---:|---:|---|
-| 1 | gpt-5.6-sol | OpenAI API / xhigh | official_v1 | **29.13** | 86.63% | 65.51% | 5/12 | Maintainer run; 12/12 completed |
-| 2 | gpt-5.6-luna | OpenAI API / xhigh | official_v1 | **19.88** | 74.67% | 41.48% | 0/12 | Maintainer run; 12/12 completed |
-| 3 | gpt-5.6-terra | OpenAI API / xhigh | official_v1 | **18.55** | 72.23% | 46.26% | 1/12 | Maintainer run; 12/12 completed |
+| Rank | Model | Access / setting | C-Bench Score | Similarity | Prefix | Exact | Evidence |
+|---:|---|---|---:|---:|---:|---:|---|
+| 1 | gpt-5.6-sol | OpenAI API / xhigh | **29.13** | 86.63% | 65.51% | 5/12 | Maintainer run; 12/12 completed |
+| 2 | gpt-5.6-luna | OpenAI API / xhigh | **19.88** | 74.67% | 41.48% | 0/12 | Maintainer run; 12/12 completed |
+| 3 | gpt-5.6-terra | OpenAI API / xhigh | **18.55** | 72.23% | 46.26% | 1/12 | Maintainer run; 12/12 completed |
 
 ### Public Leaderboard
 
