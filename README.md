@@ -70,11 +70,12 @@ similarity is shown for traceability only and does not determine the ranking.
 | - | gpt-5.6-sol | OpenAI API / xhigh | official_v1 | - | - | 0.044 similarity; 0/12 exact | private official run; not BPB-ranked |
 | - | gpt-5.6-luna | OpenAI API / xhigh | official_v1 | - | - | 0.000 similarity; 0/12 exact | private official run; not BPB-ranked |
 
-### Unofficial user-submitted leaderboard
+### Public Leaderboard
 
-This table is reserved for reproducible community submissions. It is separate
-from the official table until a submission includes the model identity, suite,
-settings, exactness metadata, and a verifiable report.
+This table contains reproducible community submissions evaluated on released
+public suites. Public results remain separate from private official evaluations.
+Each submission should include the model identity, suite, settings, exactness
+metadata, and a verifiable report.
 
 | Rank | Model | Submitted by | Suite | C-Bench Score | Macro BPB | Evidence | Status |
 |---:|---|---|---|---:|---:|---|---|
