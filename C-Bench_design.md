@@ -171,7 +171,7 @@ domains. The leaderboard score is:
 
 \[
 \text{C-Bench API Score}
-= \operatorname{clip}\left(100\frac{A-0.25}{0.75}, 0, 100\right)
+= 100\min\left(1,\max\left(0,\frac{A-0.25}{0.75}\right)\right)
 \]
 
 Random guessing scores 0, 62.5% macro accuracy scores 50, and perfect prediction

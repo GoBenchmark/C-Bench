@@ -35,7 +35,7 @@ If $A$ is mean accuracy across domains, the leaderboard score is
 
 ```math
 \mathrm{C\text{-}Bench\ API\ Score}
-=100\operatorname{clip}\left(\frac{A-0.25}{0.75},0,1\right).
+=100\min\left(1,\max\left(0,\frac{A-0.25}{0.75}\right)\right).
 ```
 
 Random guessing scores 0, perfect prediction scores 100, and higher is better.
@@ -62,11 +62,16 @@ metrics.
 ### Official C-Bench API Leaderboard
 
 Official cases and answer keys are private and are not published in this
-repository. Maintainer-controlled runs use hidden, rotating cases.
+repository. Maintainer-controlled runs use hidden, rotating cases. The archived
+entries below were completed before the four-choice API Track protocol was
+adopted. Their saved continuation evidence is retained, but it cannot be
+converted into C-Bench API Score and does not determine rank.
 
 | Rank | Model | Access / setting | Suite | C-Bench API Score | Macro accuracy | Evidence | Status |
 |---:|---|---|---|---:|---:|---|---|
-| - | No validated official entries yet | - | - | - | - | - | Open |
+| - | gpt-5.6-sol | OpenAI API / xhigh | official_v1 | - | - | 12/12 completed; 0.866 continuation similarity | Archived pre-API Track run |
+| - | gpt-5.6-luna | OpenAI API / xhigh | official_v1 | - | - | 12/12 completed; 0.747 continuation similarity | Archived pre-API Track run |
+| - | gpt-5.6-terra | OpenAI API / xhigh | official_v1 | - | - | 12/12 completed; 0.722 continuation similarity | Archived pre-API Track run |
 
 ### Public Leaderboard
 
