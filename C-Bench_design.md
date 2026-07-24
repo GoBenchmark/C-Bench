@@ -1,8 +1,10 @@
 # C-Bench: A Serious Design for an LLM-as-Compressor Benchmark
 
-**Version:** 0.2 design sketch  
-**Date:** 2026-06-17  
-**Purpose:** Define a realistic benchmark for evaluating language models by how efficiently they compress data, using next-token probabilities rather than asking the model to literally create a ZIP file. Version 0.2 adds explicit provider-access tiers and separates pure compression from reasoning-assisted / test-time-compute compression.
+**Version:** 0.3 design
+**Date:** 2026-07-24
+**Purpose:** Define a predictive benchmark whose public leaderboard works with
+black-box model APIs while retaining exact compression diagnostics for models
+that expose target probabilities.
 
 ---
 
@@ -10,16 +12,21 @@
 
 **C-Bench** is a benchmark for measuring how well language models predict, and therefore compress, unseen data.
 
-The benchmark score is based on the cumulative negative log-probability assigned by a model to held-out bytes or text spans. In the ideal arithmetic-coding limit, this equals the number of bits required to encode the data under the model.
+The leaderboard uses a hidden four-choice continuation task. Its
+chance-adjusted 0-100 score measures whether a model identifies the true next
+passage more often than random guessing.
 
-The benchmark should have two primary tracks:
+The implementation has two evaluation paths:
 
-1. **Predictive Compression Track** — measures only the model’s predictive distribution. Model size is not counted.
-2. **MDL / Artifact Track** — counts compressed data plus the submitted decompressor/model artifact, inspired by classical compression contests.
+1. **API Track** — the only ranked track; supports black-box model APIs.
+2. **Exact Compression Diagnostics** — measures BPB when target-token
+   probabilities are available; retained for research but not ranked.
 
 The benchmark should also explicitly separate **pure probability scoring** from **reasoning-assisted / test-time-compute scoring**. A reasoning model run at `medium` effort and the same model run at `xhigh` effort should not silently share one leaderboard entry, because extra inference-time compute may change conditional predictions, cost, latency, and reproducibility.
 
-Exact C-Bench participation requires either local/open logits or a provider API that can score a supplied target continuation. APIs that only return logprobs for generated text are not sufficient for the canonical track.
+Exact compression diagnostics require local/open logits or a provider API that
+can score a supplied target continuation. Generated-token logprobs are not
+sufficient for BPB, but black-box APIs can participate in the API Track.
 
 A serious implementation should begin with open-weight model scoring and public development data, then move to a private, contamination-resistant evaluation server for leaderboard results.
 
@@ -154,24 +161,21 @@ Report both:
 - **Micro BPB**: aggregate all bits and bytes across the entire suite.
 - **Macro BPB**: average BPB across domains, giving each domain equal weight.
 
-The primary leaderboard should rank entries by **C-Bench Score** descending. The
-score is derived from **Macro BPB**, which prevents one large, easy domain from
-dominating the ranking.
+BPB results are exact compression diagnostics and are not placed in the
+leaderboard.
 
-### 4.5 Public 0-100 score
+### 4.5 Public API Track score
 
-For a user-facing leaderboard, convert Macro BPB to a fixed linear score where
-higher is better:
+Each case has four candidate continuations. Let \(A\) be mean accuracy across
+domains. The leaderboard score is:
 
 \[
-\text{C-Bench Score} = \operatorname{clip}\left(100\left(1 - \frac{\text{Macro BPB}}{16}\right), 0, 100\right)
+\text{C-Bench API Score}
+= \operatorname{clip}\left(100\frac{A-0.25}{0.75}, 0, 100\right)
 \]
 
-The anchors are 0 BPB = 100 points, raw bytes at 8 BPB = 50 points, and 16 BPB
-= 0 points. The 16 BPB anchor gives inefficient systems room below the raw
-baseline while keeping the scale stable across benchmark releases. Since the
-conversion is monotonic, it preserves the Macro BPB ranking. Reports must retain
-Macro BPB, Micro BPB, and the score confidence interval for auditability.
+Random guessing scores 0, 62.5% macro accuracy scores 50, and perfect prediction
+scores 100.
 
 ### 4.6 Confidence intervals
 
@@ -214,7 +218,7 @@ Practical variants:
 
 1. **Artifact-capped track**: e.g. 16 MB, 128 MB, 1 GB caps.
 2. **Artifact-amortized track**: model size divided across a fixed evaluation corpus size.
-3. **Unlimited artifact track**: reported but not the main leaderboard.
+3. **Unlimited artifact track**: reported as an unranked diagnostic.
 
 ### Track C: Conditional Compression
 
@@ -250,23 +254,23 @@ Report predictive BPB alongside:
 - dollar cost for API models;
 - context length used.
 
-Primary ranking remains the C-Bench Score, with Macro BPB as its underlying
-lower-is-better metric. Efficiency is a companion table unless a separate
-efficiency track is explicitly created.
+Primary ranking uses the C-Bench API Score. Reasoning tokens, latency, and cost
+are companion columns unless a separate efficiency track is created. BPB
+efficiency remains available only for exact diagnostics.
 
 ### Track E: Test-Time Compute / Reasoning-Assisted Compression
 
 **Question:** Does extra inference-time reasoning improve compression, and where?
 
-This track is for reasoning models whose APIs expose a control such as `reasoning_effort`, `thinking_budget`, `reasoning_tokens`, or another inference-time compute setting. It should be separate from the canonical Predictive Compression Track.
+This track is for reasoning models whose APIs expose a control such as
+`reasoning_effort`, `thinking_budget`, or `reasoning_tokens`.
 
 Policy:
 
-- The canonical track uses a fixed, documented setting, preferably the provider default or the lowest setting that exposes the same scoring interface.
+- Each API Track entry uses one fixed, documented setting.
 - Variable reasoning effort must be reported as separate entries, e.g. `model/medium`, `model/high`, `model/xhigh`.
-- The leaderboard must report BPB together with reasoning tokens, latency, and cost.
-- Reasoning-assisted compression should not be mixed with pure model distribution scoring.
-- If a provider cannot return target-token logprobs at a given reasoning setting, that setting is not eligible for exact C-Bench.
+- The leaderboard should report reasoning tokens, latency, and cost when available.
+- Exact BPB diagnostics remain separate and unranked.
 
 Expected behavior:
 
@@ -485,7 +489,10 @@ Do not rely on canaries alone. They detect some leaks but do not prove absence o
 
 ## 10. Closed-model, API, and provider-access constraints
 
-A canonical C-Bench score requires access to the probability assigned to the **actual supplied target sequence**, not merely the probability of text the model happened to generate.
+The canonical leaderboard score is the C-Bench API Score and requires only a
+valid choice among the supplied continuations. An exact BPB diagnostic requires
+access to the probability assigned to the **actual supplied target sequence**,
+not merely the probability of text the model happened to generate.
 
 ### 10.1 Exact scoring requirement
 
@@ -509,28 +516,30 @@ The evaluator does **not** necessarily need full logits or the full next-token d
 
 Many APIs expose logprobs for generated output tokens. That is useful for confidence analysis, but it is not enough for exact C-Bench unless the API can be forced to score the hidden target continuation.
 
-A model that cannot score supplied targets cannot answer the core compression question:
+A model that cannot score supplied targets cannot answer the exact compression
+question:
 
 > How many bits would this model need to encode this exact data?
 
-It can still be evaluated in a black-box behavioral benchmark, but not in the canonical model-as-compressor track.
+It can participate fully in the C-Bench API Track, but not in exact BPB
+diagnostics.
 
 ### 10.3 Provider access tiers
 
 C-Bench should label submissions by access tier:
 
-| Tier | Name | Eligible for canonical exact C-Bench? | Description |
-|---|---|---:|---|
-| 1 | `open-local-logits` | Yes | Open-weight or locally hosted model; evaluator computes logits/logprobs directly. |
-| 2 | `hosted-target-logprobs` | Yes | Provider API returns target-token logprobs for supplied context+target. |
-| 3 | `hosted-echo-prompt-logprobs` | Yes, if verified | Completion-style API can echo prompt and return prompt-token logprobs, allowing `context+target` scoring. |
-| 4 | `provider-audited-internal` | Conditional | Provider runs official scorer internally and submits signed aggregate results; less independently auditable. |
-| 5 | `generated-logprobs-only` | No canonical score | API returns logprobs only for generated tokens. Use approximate/behavioral track only. |
-| 6 | `black-box-chat-only` | No canonical score | No target logprobs. Use non-compression benchmarks or approximate candidate-choice tasks. |
+| Tier | Name | Eligible for exact diagnostics? | API Track eligible? | Description |
+|---|---|---:|---:|---|
+| 1 | `open-local-logits` | Yes | Yes | Open-weight or locally hosted model. |
+| 2 | `hosted-target-logprobs` | Yes | Yes | Provider returns supplied-target logprobs. |
+| 3 | `hosted-echo-prompt-logprobs` | Yes, if verified | Yes | Verified prompt-token scoring. |
+| 4 | `provider-audited-internal` | Conditional | Yes | Provider runs an internal exact scorer. |
+| 5 | `generated-logprobs-only` | No | Yes | Generated-token probabilities only. |
+| 6 | `black-box-chat-only` | No | Yes | Choice output without internal probabilities. |
 
-### 10.4 Provider API policy
+### 10.4 Exact provider API policy
 
-For closed models, the preferred API is:
+For closed models participating in exact diagnostics, the preferred API is:
 
 ```python
 score(
@@ -557,7 +566,7 @@ Important constraints:
 - The endpoint must score the supplied target, not generate a new target.
 - It must return enough token boundary information to map logprobs to target bytes.
 - It must expose a fixed model version or fingerprint.
-- It must disable tools, browsing, retrieval, and memory for canonical runs.
+- It must disable tools, browsing, retrieval, and memory for exact diagnostic runs.
 - It must document whether reasoning effort or hidden thinking affects scoring.
 
 ### 10.5 API capability registry
@@ -588,16 +597,16 @@ Sending private benchmark text to a provider API can leak the hidden test set th
 - the benchmark should track which private shards were exposed to which providers;
 - provider API results should be marked with exposure/audit metadata.
 
-### 10.7 Approximate black-box track
+### 10.7 Black-box API Track
 
-A separate approximate track may exist for chat-only models. It can include:
+The ranked API Track supports chat-only models through:
 
 - finite candidate continuation ranking;
-- next-token/top-k guessing games;
-- multiple-choice conditional likelihood proxies;
 - answer selection over a closed set.
 
-This track must not be called exact compression. It measures behavior correlated with compression, not ideal code length.
+This track is the canonical C-Bench leaderboard, but it must not be called an
+exact BPB measurement. It measures predictive discrimination as a practical
+black-box proxy for compression quality.
 
 ---
 
@@ -690,30 +699,26 @@ Each run should output a machine-readable JSON file:
 
 ```json
 {
-  "benchmark_version": "cbench-0.1",
-  "suite": "core_text_private_2026q3",
+  "benchmark_version": "cbench-0.3",
+  "run_type": "api_track",
+  "suite": "api_private_2026q3",
   "model": {
     "name": "example/model",
-    "type": "open-weight",
-    "weights_hash": "...",
-    "tokenizer_hash": "...",
-    "context_regime": "C-Bench-M",
-    "max_context_bytes": 131072,
-    "access_tier": "open-local-logits",
-    "provider_endpoint": null,
-    "reasoning_effort": null,
+    "access_tier": "black-box-chat-only",
+    "provider_endpoint": "responses",
+    "reasoning_effort": "medium",
     "tools": "disabled",
     "retrieval": "disabled"
   },
   "scores": {
-    "score_100": 92.2844,
-    "macro_bpb": 1.2345,
-    "micro_bpb": 1.1987,
-    "micro_score_100": 92.5081,
-    "compression_ratio_raw": 0.1543,
-    "delta_vs_zstd": 0.217,
-    "bootstrap_ci_95": [1.2101, 1.2599],
-    "score_100_ci_95": [92.1256, 92.4369]
+    "cbench_api_score": 76.4,
+    "macro_accuracy": 0.823,
+    "micro_accuracy": 0.817,
+    "chance_accuracy": 0.25,
+    "candidate_count": 4,
+    "correct": 817,
+    "cases": 1000,
+    "score_100_ci_95": [73.1, 79.6]
   },
   "resources": {
     "wall_time_seconds": 1234.5,
@@ -725,8 +730,8 @@ Each run should output a machine-readable JSON file:
     "api_calls": null
   },
   "domain_breakdown": [
-    {"domain": "web", "bpb": 1.12, "bytes": 10000000},
-    {"domain": "code", "bpb": 0.98, "bytes": 5000000}
+    {"domain": "web", "cases": 500, "correct": 420, "accuracy": 0.84},
+    {"domain": "code", "cases": 500, "correct": 397, "accuracy": 0.794}
   ]
 }
 ```
@@ -777,9 +782,10 @@ Implementation detail: use KV caching and batched windows for speed. The referen
 
 ---
 
-## 16. Practical v0.1 implementation scope
+## 16. Historical v0.1 implementation scope
 
-The first public implementation should not try to solve everything.
+This section records the original exact-compression implementation scope. The
+current v0.3 leaderboard contract is defined in Sections 1 and 4.5.
 
 ### v0.1 must include
 
@@ -868,8 +874,9 @@ Deliverables:
 
 Acceptance criteria:
 
-- no provider can enter the canonical leaderboard unless target scoring passes fixture verification;
-- generated-token-only APIs are automatically labeled approximate;
+- every provider that can return a valid choice can enter the API Track;
+- exact diagnostics require target-scoring fixture verification;
+- generated-token-only APIs are rejected from exact diagnostics;
 - run metadata records provider endpoint, model fingerprint, tool/retrieval settings, and reasoning-effort setting.
 
 ### Milestone 5 — Private evaluation server
@@ -950,7 +957,8 @@ Use labels to prevent misleading comparisons:
 
 ### 19.1 Model cannot score target logprobs
 
-Mitigation: exclude from canonical track; allow approximate track only if limitations are clear.
+Mitigation: include it in the API Track; exclude it only from exact BPB
+diagnostics.
 
 ### 19.2 Tokenizer boundary artifacts dominate short targets
 
@@ -976,13 +984,15 @@ This is not a failure. It reveals that specialized compression remains powerful.
 
 Mitigation: maintain both Predictive and MDL tracks.
 
-### 19.8 Reasoning effort is mixed into pure compression
+### 19.8 Reasoning settings are mixed
 
-Mitigation: use a fixed default reasoning setting for canonical exact scoring and publish separate Test-Time Compute / Reasoning-Assisted entries for `low`, `medium`, `high`, `xhigh`, or provider-specific equivalents.
+Mitigation: publish separate API Track entries for `low`, `medium`, `high`,
+`xhigh`, or provider-specific equivalents.
 
 ### 19.9 API exposes only generated-token logprobs
 
-Mitigation: do not include it in the canonical track. Add it only to approximate black-box or generated-output analysis tracks with clear labels.
+Mitigation: include it in the API Track and exclude it from exact BPB
+diagnostics.
 
 ---
 
@@ -1083,4 +1093,6 @@ The second path is much harder, but it is the version worth building.
 
 ## 23. One-sentence definition
 
-**C-Bench ranks models by how many bits they need to encode unseen targets, normalized by raw bytes, with separate tracks for pure predictive compression, conditional compression, reasoning-assisted test-time-compute compression, and full-system minimum-description-length efficiency.**
+**C-Bench ranks black-box language models by chance-adjusted accuracy on hidden
+continuation choices, while retaining exact BPB tools as unranked compression
+diagnostics.**

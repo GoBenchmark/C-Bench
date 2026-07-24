@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cbench"
-version = "0.1.0"
-description = "Reference implementation for C-Bench, an LLM-as-compressor benchmark."
+version = "0.2.0"
+description = "C-Bench predictive-choice and compression benchmark for language models."
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{ name = "C-Bench contributors" }]

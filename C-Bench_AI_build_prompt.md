@@ -1,8 +1,15 @@
 # Prompt for an AI Engineering Agent: Build C-Bench v0.2 Reference Implementation
 
+> **Historical build prompt.** This document describes the v0.2 exact
+> compression implementation. In v0.3, the C-Bench API Track is the only
+> leaderboard track. Exact BPB code remains available as an unranked diagnostic.
+> See `docs/benchmark_spec.md` for the current scoring contract.
+
 You are an expert ML systems engineer and benchmark designer. Your task is to build the first working version of **C-Bench**, an LLM-as-compressor benchmark.
 
-C-Bench evaluates language models by the cumulative negative log-probability they assign to held-out target text. The underlying metric is **bits per UTF-8 byte (BPB)**, where lower is better. The public headline score is a fixed 0-100 linear conversion of Macro BPB, where higher is better: 0 BPB = 100, raw bytes at 8 BPB = 50, and 16 BPB = 0. This v0.2 prompt adds explicit provider-access tiers and reasoning-effort / test-time-compute metadata. The first implementation should prioritize correctness, reproducibility, and clear interfaces over speed.
+C-Bench v0.3 uses the chance-adjusted C-Bench API Score for its public
+leaderboards. This historical v0.2 contract built the retained BPB diagnostic
+path, where lower BPB means better exact compression.
 
 Use the design below as the build contract.
 
@@ -18,7 +25,9 @@ Create a Python package and CLI that can:
 4. Produce JSON and Markdown reports.
 5. Record access-tier metadata, including whether the score came from local logits, exact target-logprob APIs, generated-logprob-only APIs, or an approximate/black-box mode.
 6. Record reasoning-effort / thinking-budget metadata where applicable, but keep pure compression separate from reasoning-assisted compression.
-7. Include tests that prevent common scoring errors such as target leakage, off-by-one token shifts, wrong byte counts, context-boundary mistakes, and accidental inclusion of generated-logprob-only APIs in the exact leaderboard.
+7. Include tests that prevent common scoring errors such as target leakage,
+   off-by-one token shifts, wrong byte counts, context-boundary mistakes, and
+   accidental inclusion of generated-logprob-only APIs in exact diagnostics.
 
 Do **not** build a private leaderboard yet. Build a clean local reference implementation first. Exact API adapters may be stubbed unless a provider supports supplied-target logprobs and can pass fixture verification.
 
@@ -434,7 +443,7 @@ The build is acceptable when:
 8. README includes installation, scoring, baseline, and report examples.
 9. The docs explicitly warn that the public fixture suite is not contamination-safe and not a real leaderboard.
 10. Run outputs include access_tier and reasoning_effort fields.
-11. Provider capability validation rejects non-exact API modes from the canonical leaderboard.
+11. Provider capability validation keeps non-exact API modes out of exact BPB diagnostics.
 12. Reasoning-effort docs explain that `medium`, `high`, and `xhigh`-style settings must be separate entries if benchmarked.
 
 ---

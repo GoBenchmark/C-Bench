@@ -1,7 +1,7 @@
 # Provider Capability Registry
 
-Provider entries record whether a model endpoint can participate in exact
-C-Bench scoring.
+Provider entries record how a model participates in the API Track and whether
+it also supports optional exact compression diagnostics.
 
 Required fields:
 
@@ -24,5 +24,7 @@ Required fields:
 }
 ```
 
-Exact hosted scoring requires target or prompt logprobs, token byte/offset
-information, fixed model identity, and controls to disable tools and retrieval.
+All black-box text APIs can participate in the API Track if they can return a
+choice with tools and retrieval disabled. Exact diagnostic scoring additionally
+requires target or prompt logprobs, token byte/offset information, and fixed
+model identity.

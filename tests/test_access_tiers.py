@@ -1,6 +1,11 @@
 import pytest
 
-from cbench.providers.capabilities import ProviderCapability, canonical_model_metadata, validate_capability
+from cbench.providers.capabilities import (
+    ProviderCapability,
+    api_track_model_metadata,
+    canonical_model_metadata,
+    validate_capability,
+)
 
 
 def test_generated_logprobs_only_cannot_be_exact() -> None:
@@ -22,6 +27,16 @@ def test_generated_logprobs_only_cannot_be_exact() -> None:
 def test_black_box_chat_only_metadata_rejected_for_exact_run() -> None:
     with pytest.raises(ValueError, match="not eligible"):
         canonical_model_metadata(name="chat-only", access_tier="black-box-chat-only")
+
+
+def test_black_box_chat_only_metadata_allowed_for_api_track() -> None:
+    metadata = api_track_model_metadata(
+        name="chat-only",
+        access_tier="black-box-chat-only",
+        reasoning_effort="xhigh",
+    )
+    assert metadata["access_tier"] == "black-box-chat-only"
+    assert metadata["reasoning_effort"] == "xhigh"
 
 
 def test_reasoning_effort_metadata_keeps_entries_separate() -> None:

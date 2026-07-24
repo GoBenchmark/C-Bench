@@ -6,12 +6,13 @@ quality, latency, cost, and reproducibility.
 
 Policy:
 
-- Canonical pure compression uses one fixed documented setting.
 - Different reasoning settings are separate run entries, such as `model/medium`
   and `model/xhigh`.
 - Reports include `reasoning_effort`, reasoning tokens if available, latency,
   and estimated cost.
-- Reasoning-assisted results must not be mixed into the pure compression
-  leaderboard without clear labeling.
-- If a model cannot return target-token logprobs under a reasoning setting, that
-  setting is not eligible for exact C-Bench.
+- API Track leaderboard entries must use a fixed documented setting and disable
+  tools, retrieval, browsing, and memory.
+- Reasoning effort may improve predictive-choice accuracy, but its cost and
+  latency remain separate reported quantities.
+- Exact compression diagnostics may use reasoning settings only when the model
+  returns target-token logprobs; those diagnostics are not leaderboard entries.

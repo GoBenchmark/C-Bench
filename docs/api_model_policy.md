@@ -1,24 +1,31 @@
 # API Model Policy
 
-Canonical C-Bench requires probability scores for the supplied target sequence.
-The evaluator needs target-token log probabilities for:
+The C-Bench API Track is the only leaderboard track. It supports black-box
+models because scoring requires a selected continuation, not internal logits.
+
+Required run controls:
+
+- exactly four candidates per case;
+- one integer choice from 0 through 3;
+- tools, browsing, retrieval, and memory disabled;
+- model snapshot and provider recorded;
+- reasoning effort recorded as a separate setting;
+- raw predictions retained for verification.
+
+Missing answers count as incorrect. Unknown case IDs, duplicate predictions,
+and out-of-range choices invalidate a submission.
+
+## Exact Compression
+
+Exact compression diagnostics remain available when an evaluator can obtain:
 
 ```text
 P(target_token_i | context, previous_target_tokens)
 ```
 
-Eligible access tiers:
+Eligible exact access tiers include local logits, hosted target logprobs,
+verified echo-prompt logprobs, and provider-audited internal scoring.
 
-- `open-local-logits`
-- `hosted-target-logprobs`
-- `hosted-echo-prompt-logprobs`, if fixture-verified
-- `provider-audited-internal`, with explicit audit caveats
-
-Non-canonical tiers:
-
-- `generated-logprobs-only`
-- `black-box-chat-only`
-
-Generated-token logprobs are not enough because they score text the model chose
-to emit, not the exact hidden target continuation. Such systems may be evaluated
-in an approximate behavioral track, but not in exact C-Bench.
+Generated-output logprobs are insufficient because they describe text chosen by
+the model rather than the supplied target. Exact BPB results are retained for
+research and auditing but are never placed in a leaderboard.

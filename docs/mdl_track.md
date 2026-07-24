@@ -14,7 +14,7 @@ Possible variants:
 
 - Artifact-capped: fixed caps such as 16 MB, 128 MB, or 1 GB.
 - Artifact-amortized: model size divided across a fixed evaluation corpus size.
-- Unlimited artifact: reported separately, not the main leaderboard.
+- Unlimited artifact: reported as an unranked diagnostic.
 
 The MDL track should run in a sandbox with network disabled and private data
 mounted read-only.

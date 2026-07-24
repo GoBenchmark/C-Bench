@@ -9,13 +9,33 @@ The suite is public and assumed contaminated. It is for implementation checks,
 model debugging, and transparent development results. It is not the primary
 leaderboard set.
 
+The repository also includes `datasets/public_dev_api_cases.jsonl`, containing
+one four-choice API Track case per domain. These cases verify prediction-file
+parsing, chance-adjusted scoring, and reports. Rebuild them deterministically
+with:
+
+```bash
+python scripts/build_public_api_cases.py
+```
+
+Score a prediction file with:
+
+```bash
+cbench api-score \
+  --cases datasets/public_dev_api_cases.jsonl \
+  --predictions datasets/public_dev_api_predictions.example.jsonl \
+  --suite public_dev_api \
+  --model example-model \
+  --output runs/example-api-score.json
+```
+
 ## Validate
 
 ```bash
 cbench validate --suite configs/public_dev.yaml
 ```
 
-## Run Baselines
+## Exact Diagnostic Baselines
 
 ```bash
 cbench baseline \

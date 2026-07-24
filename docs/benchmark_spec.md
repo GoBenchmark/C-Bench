@@ -1,56 +1,73 @@
 # C-Bench Benchmark Spec
 
-C-Bench measures language models as predictive compressors. For a target byte
-string represented as native model tokens, the score is:
+C-Bench measures whether a language model can identify the true continuation
+of unseen data. The public ranking metric is the C-Bench API Score.
+
+## API Track
+
+Each case contains:
+
+- a context;
+- four same-domain candidate continuations;
+- exactly one true continuation;
+- a hidden answer index.
+
+The evaluator randomizes candidate order and disables tools, retrieval, memory,
+and browsing. A model returns one integer choice from 0 through 3.
+
+Accuracy is calculated separately for each domain. Macro accuracy gives every
+domain equal weight:
+
+```text
+Macro Accuracy = mean(domain accuracy)
+```
+
+The leaderboard score removes the 25% random-guessing baseline:
+
+```text
+C-Bench API Score =
+    clip(100 * (Macro Accuracy - 0.25) / 0.75, 0, 100)
+```
+
+The anchors are:
+
+- 25% macro accuracy = 0 points: random guessing
+- 62.5% macro accuracy = 50 points
+- 100% macro accuracy = 100 points
+
+Missing choices count as incorrect. Duplicate IDs, unknown IDs, malformed
+records, and out-of-range choices invalidate the submission. Reports include
+macro and micro accuracy, correct and answered counts, domain results, and a
+95% bootstrap confidence interval.
+
+Different model snapshots, reasoning-effort settings, tool settings, and
+prompt templates are separate entries.
+
+## Exact Compression Diagnostics
+
+The repository retains exact predictive-compression scoring for models that
+expose target-token probabilities:
 
 ```text
 bits = -sum(log2 P_model(target_token_i | context, previous_target_tokens))
 BPB = bits / len(target_utf8_bytes)
 ```
 
-Lower BPB is better. Raw uncompressed bytes are 8 BPB.
+Macro BPB, Micro BPB, and compressor baselines remain useful research and audit
+metrics. They are not included in the Official or Public Leaderboard.
 
-## Public Leaderboard Score
+Generated-token log probabilities cannot replace target-token probabilities.
+They score text selected by the model, not the supplied benchmark target.
 
-The headline leaderboard score is **C-Bench Score**, a fixed 0-100 linear
-conversion of Macro BPB where higher is better:
+## Case Construction
 
-```text
-C-Bench Score = clip(100 * (1 - Macro BPB / 16), 0, 100)
-```
+Official cases use private, rotating source material. Distractors must:
 
-The published anchors are:
+- match the true continuation's domain, format, and approximate length;
+- remain locally plausible after the context;
+- avoid obvious answer-only artifacts;
+- be permuted independently for each run;
+- pass duplicate and accidental-answer checks.
 
-- 0 BPB = 100 points: theoretical perfect prediction
-- 8 BPB = 50 points: raw uncompressed bytes
-- 16 BPB = 0 points: twice the raw-byte cost
-
-The 16 BPB lower anchor gives inefficient models and compressors room below the
-raw baseline. Because the conversion is monotonic, ranking by C-Bench Score is
-identical to ranking by Macro BPB. BPB must remain in every report for audit and
-cross-benchmark comparison.
-
-The primary implementation uses each model's native tokenizer, then normalizes
-by raw UTF-8 target bytes. Token perplexity is not a cross-model metric and must
-not be used as the leaderboard score.
-
-## Tracks
-
-- Predictive Compression: model size is excluded; score is ideal code length.
-- Conditional Compression: context is provided for free; only target bytes count.
-- Efficiency-aware Reporting: BPB is reported with time, memory, and cost.
-- Reasoning-assisted Compression: reasoning-effort settings are separate entries.
-- MDL / Artifact Compression: future track that also counts model/decompressor artifacts.
-
-All public leaderboard tables should show C-Bench Score first, followed by
-Macro BPB, Micro BPB, domain scores, and the confidence interval.
-
-## Public Fixture Warning
-
-The bundled `dev_small` suite exists only to verify code paths, byte counting,
-and reporting. It is not contamination-safe and must not be treated as a real
-leaderboard.
-
-The reproducible `public_dev` suite provides one larger document per domain for
-public debugging. Official leaderboard evaluation uses a separate private,
-rotating suite that is not released in this repository.
+The released `public_dev` API cases verify the scorer and submission format.
+They are public, assumed contaminated, and not official leaderboard material.

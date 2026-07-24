@@ -4,8 +4,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-from cbench.metrics import bpb_to_score_100
-
 
 def load_run(path: str | Path) -> dict[str, Any]:
     return json.loads(Path(path).read_text(encoding="utf-8"))
@@ -17,49 +15,81 @@ def render_markdown(runs: list[dict[str, Any]]) -> str:
         lines.append("No runs supplied.")
         return "\n".join(lines) + "\n"
 
-    ordered_runs = _sort_runs(runs)
+    api_runs = _sort_api_runs(
+        [run for run in runs if run.get("run_type") == "api_track"]
+    )
+    exact_runs = [run for run in runs if run.get("run_type") != "api_track"]
 
     lines.extend(
         [
-            "## Summary",
+            "## API Track Leaderboard",
             "",
-            "> C-Bench Score is 0-100, higher is better. BPB remains the audit metric.",
+            "> C-Bench API Score is 0-100 and chance-adjusted. Higher is better.",
             "",
-            "| Rank | Run | Type | C-Bench Score ↑ | Score 95% CI | Macro BPB ↓ | Micro BPB ↓ | Notes |",
-            "|---:|---|---:|---:|---:|---:|---:|---|",
+            "| Rank | Model | Setting | C-Bench API Score ↑ | Score 95% CI | Macro accuracy ↑ | Correct | Notes |",
+            "|---:|---|---|---:|---:|---:|---:|---|",
         ]
     )
-    for rank, run in enumerate(ordered_runs, start=1):
-        run_type = run.get("run_type", "unknown")
-        suite = run.get("suite", "")
-        label = run.get("model", {}).get("name") or run.get("compressor") or suite or "run"
+    if not api_runs:
+        lines.append("| - | No API Track runs supplied | - | - | - | - | - | - |")
+    for rank, run in enumerate(api_runs, start=1):
+        model = run.get("model", {})
+        label = model.get("name") or run.get("suite") or "run"
+        setting = model.get("reasoning_effort") or "default"
         scores = run.get("scores", {})
-        score = scores.get("score_100")
-        if score is None and scores.get("macro_bpb") is not None:
-            score = bpb_to_score_100(float(scores["macro_bpb"]))
+        score = scores.get("cbench_api_score")
         score_ci = scores.get("score_100_ci_95")
-        if score_ci is None and scores.get("bootstrap_ci_95"):
-            bpb_ci = scores["bootstrap_ci_95"]
-            score_ci = [bpb_to_score_100(float(bpb_ci[1])), bpb_to_score_100(float(bpb_ci[0]))]
-        macro = scores.get("macro_bpb")
-        micro = scores.get("micro_bpb")
-        notes = run.get("model", {}).get("access_tier") or ""
+        macro_accuracy = scores.get("macro_accuracy")
+        correct = f"{scores.get('correct', 0)}/{scores.get('cases', 0)}"
+        notes = model.get("access_tier") or ""
         lines.append(
-            f"| {rank} | {_fmt(label)} | {_fmt(run_type)} | {_fmt(score)} | {_fmt_ci(score_ci)} "
-            f"| {_fmt(macro)} | {_fmt(micro)} | {_fmt(notes)} |"
+            f"| {rank} | {_fmt(label)} | {_fmt(setting)} | {_fmt(score)} "
+            f"| {_fmt_ci(score_ci)} | {_fmt(macro_accuracy)} | {_fmt(correct)} "
+            f"| {_fmt(notes)} |"
         )
 
-    for run in ordered_runs:
-        label = run.get("model", {}).get("name") or run.get("compressor") or run.get("suite", "run")
+    for run in api_runs:
+        label = run.get("model", {}).get("name") or run.get("suite", "run")
         lines.extend(["", f"## {_heading(label)}", ""])
         if run.get("domain_breakdown"):
-            lines.extend(["| Domain | Documents | Bytes | Score ↑ | BPB ↓ |", "|---|---:|---:|---:|---:|"])
+            lines.extend(
+                [
+                    "| Domain | Cases | Answered | Correct | Accuracy ↑ | API Score ↑ |",
+                    "|---|---:|---:|---:|---:|---:|",
+                ]
+            )
             for row in run["domain_breakdown"]:
                 lines.append(
-                    f"| {_fmt(row['domain'])} | {row.get('documents', '')} | {row.get('bytes', '')} "
-                    f"| {_fmt(row.get('score_100', bpb_to_score_100(float(row['bpb']))))} "
-                    f"| {_fmt(row.get('bpb'))} |"
+                    f"| {_fmt(row['domain'])} | {_fmt(row.get('cases'))} "
+                    f"| {_fmt(row.get('answered'))} | {_fmt(row.get('correct'))} "
+                    f"| {_fmt(row.get('accuracy'))} | {_fmt(row.get('api_score_100'))} |"
                 )
+
+    if exact_runs:
+        lines.extend(
+            [
+                "",
+                "## Exact Compression Diagnostics",
+                "",
+                "These BPB results are retained for research and auditing. They are not "
+                "leaderboard entries.",
+                "",
+                "| Run | Type | Macro BPB ↓ | Micro BPB ↓ | Access |",
+                "|---|---|---:|---:|---|",
+            ]
+        )
+        for run in exact_runs:
+            label = (
+                run.get("model", {}).get("name")
+                or run.get("compressor")
+                or run.get("suite", "run")
+            )
+            scores = run.get("scores", {})
+            lines.append(
+                f"| {_fmt(label)} | {_fmt(run.get('run_type', 'unknown'))} "
+                f"| {_fmt(scores.get('macro_bpb'))} | {_fmt(scores.get('micro_bpb'))} "
+                f"| {_fmt(run.get('model', {}).get('access_tier', ''))} |"
+            )
     return "\n".join(lines) + "\n"
 
 
@@ -98,12 +128,10 @@ def _heading(value: Any) -> str:
     return " ".join(str(value).replace("\r", " ").replace("\n", " ").split())
 
 
-def _sort_runs(runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _sort_api_runs(runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     def sort_key(run: dict[str, Any]) -> tuple[bool, float]:
         scores = run.get("scores", {})
-        score = scores.get("score_100")
-        if score is None and scores.get("macro_bpb") is not None:
-            score = bpb_to_score_100(float(scores["macro_bpb"]))
+        score = scores.get("cbench_api_score")
         return (score is not None, float(score) if score is not None else 0.0)
 
     return sorted(runs, key=sort_key, reverse=True)

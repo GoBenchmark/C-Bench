@@ -6,12 +6,16 @@ from pathlib import Path
 from typing import Any
 
 from cbench import __version__
+from cbench.api_track import load_api_cases, load_api_predictions, score_api_track
 from cbench.bootstrap import bootstrap_macro_bpb_ci
 from cbench.compressors.baselines import run_baselines
 from cbench.data.manifest import load_suite_config
 from cbench.data.validation import validate_suite
 from cbench.metrics import DocumentScore, aggregate_scores, domain_breakdown
-from cbench.providers.capabilities import canonical_model_metadata
+from cbench.providers.capabilities import (
+    api_track_model_metadata,
+    canonical_model_metadata,
+)
 from cbench.report import write_report
 
 
@@ -43,6 +47,17 @@ def main(argv: list[str] | None = None) -> int:
     score_parser.add_argument("--use-bos", action="store_true")
     score_parser.add_argument("--device")
 
+    api_score_parser = subparsers.add_parser(
+        "api-score",
+        help="Score black-box model choices for the C-Bench API Track",
+    )
+    api_score_parser.add_argument("--cases", required=True)
+    api_score_parser.add_argument("--predictions", required=True)
+    api_score_parser.add_argument("--suite", required=True)
+    api_score_parser.add_argument("--model", required=True)
+    api_score_parser.add_argument("--reasoning-effort")
+    api_score_parser.add_argument("--output", required=True)
+
     report_parser = subparsers.add_parser("report", help="Generate Markdown report")
     report_parser.add_argument("--inputs", nargs="+", required=True)
     report_parser.add_argument("--output", required=True)
@@ -56,6 +71,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_baseline(args)
     if args.command == "score":
         return _cmd_score(args)
+    if args.command == "api-score":
+        return _cmd_api_score(args)
     if args.command == "report":
         return _cmd_report(args)
     raise AssertionError(f"Unhandled command {args.command}")
@@ -132,7 +149,7 @@ def _cmd_baseline(args: argparse.Namespace) -> int:
 
 def _cmd_score(args: argparse.Namespace) -> int:
     if not args.model.startswith("hf:"):
-        raise SystemExit("Only hf:<model-name-or-path> is supported in v0.1")
+        raise SystemExit("Only hf:<model-name-or-path> is supported for exact scoring")
     from cbench.scoring.hf_causal import score_hf_entries
 
     config = load_suite_config(args.suite)
@@ -172,6 +189,37 @@ def _cmd_score(args: argparse.Namespace) -> int:
         },
     }
     _write_json(args.output, output)
+    print(f"Wrote {args.output}")
+    return 0
+
+
+def _cmd_api_score(args: argparse.Namespace) -> int:
+    cases = load_api_cases(args.cases)
+    predictions = load_api_predictions(args.predictions)
+    scored = score_api_track(cases, predictions)
+    output = {
+        "benchmark_version": f"cbench-{__version__}",
+        "run_type": "api_track",
+        "suite": args.suite,
+        "model": api_track_model_metadata(
+            name=args.model,
+            access_tier="black-box-chat-only",
+            reasoning_effort=args.reasoning_effort,
+        ),
+        "scores": scored["scores"],
+        "domain_breakdown": scored["domain_breakdown"],
+        "results": scored["results"],
+        "settings": {
+            "candidate_count": scored["scores"]["candidate_count"],
+            "tools": "disabled",
+            "retrieval": "disabled",
+        },
+    }
+    _write_json(args.output, output)
+    print(
+        f"C-Bench API Score: {scored['scores']['cbench_api_score']:.2f} "
+        f"({scored['scores']['correct']}/{scored['scores']['cases']} correct)"
+    )
     print(f"Wrote {args.output}")
     return 0
 

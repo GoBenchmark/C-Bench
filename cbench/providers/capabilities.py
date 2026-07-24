@@ -97,3 +97,26 @@ def canonical_model_metadata(
         "tools": "disabled",
         "retrieval": "disabled",
     }
+
+
+def api_track_model_metadata(
+    *,
+    name: str,
+    access_tier: str = "black-box-chat-only",
+    provider: str | None = None,
+    endpoint_family: str | None = None,
+    model_fingerprint: str | None = None,
+    reasoning_effort: str | None = None,
+) -> dict[str, Any]:
+    if access_tier not in ALL_ACCESS_TIERS:
+        raise ValueError(f"Unknown access_tier: {access_tier}")
+    return {
+        "name": name,
+        "access_tier": access_tier,
+        "provider": provider,
+        "endpoint_family": endpoint_family,
+        "model_fingerprint": model_fingerprint,
+        "reasoning_effort": reasoning_effort,
+        "tools": "disabled",
+        "retrieval": "disabled",
+    }
