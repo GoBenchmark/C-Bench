@@ -2,15 +2,21 @@
 
 ![C-Bench predictive compression](docs/assets/cbench-predictive-compression.png)
 
-## Philosophy
+## Principle
 
-C-Bench is built around a simple question: **how many bits does a model need to
-describe unfamiliar data?** A model that assigns high probability to the actual
-next content can encode it compactly; a surprised model needs more bits. This
-turns language-model evaluation into a measurable test of prediction,
-calibration, and generalization.
+**Compression and prediction are deeply equivalent.** A probabilistic model
+that predicts what comes next can turn those probabilities into a lossless
+code: likely content requires fewer bits, while surprising content requires
+more. The ideal code length for an outcome `x` is `-log2 P(x)`, so compression
+measures predictive probability in a concrete, auditable unit.
 
-The benchmark follows these principles:
+**A better language model is a better general-purpose predictive compressor.**
+If a model has learned more of the reusable structure in language and data, it
+should predict and compress unfamiliar prose, code, multilingual text, and
+structured data more efficiently. C-Bench tests this broad predictive ability
+instead of judging generated answers with task-specific rubrics.
+
+This principle determines the benchmark design:
 
 - **Measure predictions, not performances.** C-Bench scores the probability of
   a supplied target sequence. It does not ask a model to generate an answer and
@@ -30,9 +36,9 @@ The benchmark follows these principles:
   implementation inspectable; serious leaderboard claims require hidden or
   rotating evaluation data and strict submission procedures.
 
-The goal is not to crown a model that memorizes a fixed collection. It is to
-build a durable measurement of how efficiently models represent data they have
-not been allowed to inspect in advance.
+The goal is not to reward memorization of a fixed collection. It is to measure
+how efficiently a model predicts and represents data it has not been allowed to
+inspect in advance.
 
 C-Bench evaluates language models as predictive compressors. The public
 leaderboard score is a fixed 0-100 linear conversion of Macro BPB, where higher
