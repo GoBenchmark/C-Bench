@@ -1,0 +1,109 @@
+{
+  "benchmark_version": "cbench-0.3.0",
+  "domain_breakdown": [
+    {
+      "answered": 1,
+      "cases": 1,
+      "cbench_score": 1.5014982727594468,
+      "domain": "code",
+      "exact": 0,
+      "prefix": 0.0,
+      "similarity": 0.09852216748768473
+    },
+    {
+      "answered": 1,
+      "cases": 1,
+      "cbench_score": 0.3158630627959178,
+      "domain": "multilingual",
+      "exact": 0,
+      "prefix": 0.0,
+      "similarity": 0.02158273381294964
+    },
+    {
+      "answered": 1,
+      "cases": 1,
+      "cbench_score": 1.5252496853558382,
+      "domain": "prose",
+      "exact": 0,
+      "prefix": 0.0,
+      "similarity": 0.1
+    },
+    {
+      "answered": 1,
+      "cases": 1,
+      "cbench_score": 6.255771053516547,
+      "domain": "structured",
+      "exact": 0,
+      "prefix": 0.0,
+      "similarity": 0.3508771929824561
+    }
+  ],
+  "model": {
+    "access_tier": "black-box-chat-only",
+    "endpoint_family": "chat/completions",
+    "model_fingerprint": null,
+    "name": "openai/gpt-oss-20b:free",
+    "provider": "OpenRouter",
+    "reasoning_effort": "max-tokens-16",
+    "retrieval": "disabled",
+    "tools": "disabled"
+  },
+  "results": [
+    {
+      "answered": true,
+      "domain": "prose",
+      "exact": false,
+      "id": "public_dev_prose_001",
+      "prefix": 0.0,
+      "similarity": 0.1
+    },
+    {
+      "answered": true,
+      "domain": "multilingual",
+      "exact": false,
+      "id": "public_dev_multilingual_001",
+      "prefix": 0.0,
+      "similarity": 0.02158273381294964
+    },
+    {
+      "answered": true,
+      "domain": "code",
+      "exact": false,
+      "id": "public_dev_code_001",
+      "prefix": 0.0,
+      "similarity": 0.09852216748768473
+    },
+    {
+      "answered": true,
+      "domain": "structured",
+      "exact": false,
+      "id": "public_dev_structured_001",
+      "prefix": 0.0,
+      "similarity": 0.3508771929824561
+    }
+  ],
+  "run_type": "generation_track",
+  "scores": {
+    "answered": 4,
+    "cases": 4,
+    "cbench_score": 2.2296746133050895,
+    "exact": 0,
+    "exact_rate": 0.0,
+    "higher_is_better": true,
+    "macro_prefix": 0.0,
+    "macro_similarity": 0.14274552357077264,
+    "micro_similarity": 0.14274552357077264,
+    "score_100_ci_95": [
+      2.2296746133050895,
+      2.2296746133050895
+    ],
+    "score_nines": 3.0
+  },
+  "settings": {
+    "retrieval": "disabled",
+    "score_nines": 3.0,
+    "similarity": "difflib.SequenceMatcher over UTF-8 bytes",
+    "tools": "disabled"
+  },
+  "suite": "public_dev_generation"
+}

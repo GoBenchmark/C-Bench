@@ -82,9 +82,10 @@ settings, raw continuations, and a verifiable report.
 Submit a result through the
 [Public Result Submission issue form](https://github.com/GoBenchmark/C-Bench/issues/new?template=public-result.yml).
 
-| Rank | Model | Submitted by | Suite | C-Bench Score | Similarity | Evidence | Status |
-|---:|---|---|---|---:|---:|---|---|
-| - | No validated submissions yet | - | - | - | - | - | Open for submissions |
+| Rank | Model | Access / setting | Submitted by | Suite | C-Bench Score | Similarity | Evidence | Status |
+|---:|---|---|---|---|---:|---:|---|---|
+| 1 | nvidia/nemotron-3-ultra-550b-a55b:free | OpenRouter free / reasoning max 16 tokens | Maintainers | public_dev | **4.47** | 26.58% | [report](docs/submissions/openrouter-2026-07-24/report.md) / [raw](docs/submissions/openrouter-2026-07-24/nemotron-3-ultra-550b-openrouter.predictions.jsonl) | Verified |
+| 2 | openai/gpt-oss-20b:free | OpenRouter free / reasoning max 16 tokens | Maintainers | public_dev | **2.23** | 14.27% | [report](docs/submissions/openrouter-2026-07-24/report.md) / [raw](docs/submissions/openrouter-2026-07-24/gpt-oss-20b-openrouter.predictions.jsonl) | Verified |
 
 ## Install
 

@@ -1,0 +1,109 @@
+{
+  "benchmark_version": "cbench-0.3.0",
+  "domain_breakdown": [
+    {
+      "answered": 1,
+      "cases": 1,
+      "cbench_score": 4.145258018641246,
+      "domain": "code",
+      "exact": 0,
+      "prefix": 0.1125,
+      "similarity": 0.24899598393574296
+    },
+    {
+      "answered": 1,
+      "cases": 1,
+      "cbench_score": 1.3770198553784663,
+      "domain": "multilingual",
+      "exact": 0,
+      "prefix": 0.02586206896551724,
+      "similarity": 0.09073724007561437
+    },
+    {
+      "answered": 1,
+      "cases": 1,
+      "cbench_score": 2.7841159461727427,
+      "domain": "prose",
+      "exact": 0,
+      "prefix": 0.6125,
+      "similarity": 0.17495711835334476
+    },
+    {
+      "answered": 1,
+      "cases": 1,
+      "cbench_score": 11.516942246182776,
+      "domain": "structured",
+      "exact": 0,
+      "prefix": 0.325,
+      "similarity": 0.5486725663716814
+    }
+  ],
+  "model": {
+    "access_tier": "black-box-chat-only",
+    "endpoint_family": "chat/completions",
+    "model_fingerprint": null,
+    "name": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "provider": "OpenRouter",
+    "reasoning_effort": "max-tokens-16",
+    "retrieval": "disabled",
+    "tools": "disabled"
+  },
+  "results": [
+    {
+      "answered": true,
+      "domain": "prose",
+      "exact": false,
+      "id": "public_dev_prose_001",
+      "prefix": 0.6125,
+      "similarity": 0.17495711835334476
+    },
+    {
+      "answered": true,
+      "domain": "multilingual",
+      "exact": false,
+      "id": "public_dev_multilingual_001",
+      "prefix": 0.02586206896551724,
+      "similarity": 0.09073724007561437
+    },
+    {
+      "answered": true,
+      "domain": "code",
+      "exact": false,
+      "id": "public_dev_code_001",
+      "prefix": 0.1125,
+      "similarity": 0.24899598393574296
+    },
+    {
+      "answered": true,
+      "domain": "structured",
+      "exact": false,
+      "id": "public_dev_structured_001",
+      "prefix": 0.325,
+      "similarity": 0.5486725663716814
+    }
+  ],
+  "run_type": "generation_track",
+  "scores": {
+    "answered": 4,
+    "cases": 4,
+    "cbench_score": 4.473657049059796,
+    "exact": 0,
+    "exact_rate": 0.0,
+    "higher_is_better": true,
+    "macro_prefix": 0.26896551724137935,
+    "macro_similarity": 0.26584072718409585,
+    "micro_similarity": 0.26584072718409585,
+    "score_100_ci_95": [
+      4.473657049059796,
+      4.473657049059796
+    ],
+    "score_nines": 3.0
+  },
+  "settings": {
+    "retrieval": "disabled",
+    "score_nines": 3.0,
+    "similarity": "difflib.SequenceMatcher over UTF-8 bytes",
+    "tools": "disabled"
+  },
+  "suite": "public_dev_generation"
+}

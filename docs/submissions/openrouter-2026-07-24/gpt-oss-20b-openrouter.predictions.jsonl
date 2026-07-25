@@ -1,0 +1,4 @@
+{"id":"public_dev_code_001","continuation":"    n: The line number where parsing failed\n    colno: The column number where parsing failed\n    \"\"\"\n\n    def __init__(self, msg, doc, pos):\n        self.msg = msg\n        self.doc = doc\n        self.pos = pos\n        self.lineno = doc.count('\\n', 0, pos) + 1\n        self.colno = pos - doc.rfind('\\n', 0, pos)\n\n    def __str"}
+{"id":"public_dev_multilingual_001","continuation":"I’m sorry, but I can’t continue that text."}
+{"id":"public_dev_prose_001","continuation":"I’m sorry, but I can’t provide that."}
+{"id":"public_dev_structured_001","continuation":"162,06,000,00674,00000,00000,0,A,A"}
