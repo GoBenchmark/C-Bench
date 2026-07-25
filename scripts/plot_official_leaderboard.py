@@ -21,9 +21,15 @@ TIFF_PATH = ASSET_DIR / "cbench-official-leaderboard.tiff"
 QA_PATH = ASSET_DIR / "cbench-official-leaderboard.qa.json"
 
 COLORS = {
+    "claude-opus-5": "#D97706",
+    "claude-opus-4-8": "#D97706",
+    "claude-opus-4-7": "#D97706",
+    "claude-opus-4-6": "#D97706",
     "gpt-5.6-sol": "#0F766E",
+    "gpt-5.5": "#0F766E",
     "gpt-5.6-luna": "#64748B",
     "gpt-5.6-terra": "#64748B",
+    "gpt-5.4": "#64748B",
 }
 
 
@@ -60,8 +66,8 @@ def plot(rows: list[dict[str, str]]) -> None:
         }
     )
 
-    figure = plt.figure(figsize=(7.2, 3.2), facecolor="white")
-    axis = figure.add_axes((0.22, 0.20, 0.72, 0.60), facecolor="white")
+    figure = plt.figure(figsize=(7.2, 5.0), facecolor="white")
+    axis = figure.add_axes((0.25, 0.13, 0.69, 0.72), facecolor="white")
 
     positions = list(reversed(range(len(rows))))
     scores = [float(row["cbench_score"]) for row in rows]
@@ -82,10 +88,10 @@ def plot(rows: list[dict[str, str]]) -> None:
             va="center",
         )
 
-    axis.set_xlim(0, 35)
+    axis.set_xlim(0, 45)
     axis.set_ylim(-0.65, len(rows) - 0.35)
     axis.set_yticks(positions, model_labels, fontweight="bold", color="#0F172A")
-    axis.set_xticks([0, 10, 20, 30])
+    axis.set_xticks([0, 10, 20, 30, 40])
     axis.set_xlabel("C-Bench Score", color="#334155", labelpad=8)
     axis.tick_params(axis="y", length=0, pad=12)
     axis.tick_params(axis="x", colors="#64748B", length=0)
@@ -149,7 +155,7 @@ def write_qa(rows: list[dict[str, str]]) -> None:
     with Image.open(PNG_PATH) as image:
         png_dimensions = list(image.size)
     qa = {
-        "claim": "gpt-5.6-sol leads the current three-model official leaderboard.",
+        "claim": "claude-opus-5 leads the current nine-model official leaderboard.",
         "source_data": SOURCE_PATH.name,
         "source_sha256": hashlib.sha256(SOURCE_PATH.read_bytes()).hexdigest(),
         "rows": len(rows),
@@ -162,7 +168,7 @@ def write_qa(rows: list[dict[str, str]]) -> None:
             TIFF_PATH.name,
         ],
         "png_dimensions_px": png_dimensions,
-        "figure_size_inches": [7.2, 3.2],
+        "figure_size_inches": [7.2, 5.0],
         "figure_width_mm": 182.88,
         "png_dpi": 300,
         "python": platform.python_version(),

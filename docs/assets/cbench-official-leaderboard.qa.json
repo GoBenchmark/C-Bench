@@ -1,9 +1,9 @@
 {
-  "claim": "gpt-5.6-sol leads the current three-model official leaderboard.",
+  "claim": "claude-opus-5 leads the current nine-model official leaderboard.",
   "excluded_rows": 0,
   "figure_size_inches": [
     7.2,
-    3.2
+    5.0
   ],
   "figure_width_mm": 182.88,
   "matplotlib": "3.11.1",
@@ -15,15 +15,15 @@
   ],
   "png_dimensions_px": [
     2160,
-    960
+    1500
   ],
   "png_dpi": 300,
   "private_data_included": false,
   "python": "3.13.7",
-  "rows": 3,
+  "rows": 9,
   "score_transform": "100 * min(1, log10(1 / (1 - macro_similarity)) / 3)",
   "source_data": "cbench-official-leaderboard.csv",
-  "source_sha256": "1c64f745d7ba833162f0d1237b226c00401d9caa683e3f7a63ed147b938af2a5",
+  "source_sha256": "a53e981c79a3621dc4a58f7132d54a262657547a3c3165007feed225fdb2f244",
   "validation_notes": [
     "The 183 mm width matches a common double-column figure.",
     "The validator's log-guard warning refers to the documented score formula; score inputs are validated by cbench.generation_track."
