@@ -19,7 +19,7 @@ PDF_PATH = ASSET_DIR / "cbench-official-leaderboard.pdf"
 PNG_PATH = ASSET_DIR / "cbench-official-leaderboard.png"
 TIFF_PATH = ASSET_DIR / "cbench-official-leaderboard.tiff"
 QA_PATH = ASSET_DIR / "cbench-official-leaderboard.qa.json"
-FIGURE_SIZE = (7.2, 5.4)
+FIGURE_SIZE = (7.2, 6.8)
 
 COLORS = {
     "gpt-6-astra": "#0F766E",
@@ -157,7 +157,7 @@ def write_qa(rows: list[dict[str, str]]) -> None:
     with Image.open(PNG_PATH) as image:
         png_dimensions = list(image.size)
     qa = {
-        "claim": f"{rows[0]['model']} leads the current {len(rows)}-model official leaderboard.",
+        "claim": f"{rows[0]['model']} leads the current {len(rows)}-entry official leaderboard.",
         "source_data": SOURCE_PATH.name,
         "source_sha256": hashlib.sha256(SOURCE_PATH.read_bytes()).hexdigest(),
         "rows": len(rows),

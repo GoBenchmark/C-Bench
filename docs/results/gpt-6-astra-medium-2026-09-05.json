@@ -1,0 +1,89 @@
+{
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "evaluation_date": "2026-09-05",
+  "client": "Codex CLI",
+  "client_version": "0.153.0",
+  "evaluation": "Maintainer-controlled private official suite",
+  "protocol": {
+    "context_chars": 600,
+    "target_chars": 80,
+    "requested_output_chars": 80,
+    "similarity": "difflib.SequenceMatcher over UTF-8 bytes",
+    "tools": "disabled and event-audited",
+    "retrieval": "disabled",
+    "network": "disabled",
+    "session_persistence": "disabled",
+    "client": "Codex CLI",
+    "codex_user_config": "ignored"
+  },
+  "scores": {
+    "cbench_score": 20.359763181747233,
+    "score_100_ci_95": [
+      12.88445075586096,
+      36.47802168845913
+    ],
+    "macro_similarity": 0.7549768580539193,
+    "micro_similarity": 0.7549768580539192,
+    "macro_prefix": 0.5625855860649922,
+    "exact_rate": 0.25,
+    "exact": 3,
+    "cases": 12,
+    "answered": 12,
+    "score_nines": 3.0,
+    "higher_is_better": true
+  },
+  "confidence_interval": {
+    "method": "Within-domain bootstrap over cases",
+    "confidence_level": 0.95,
+    "bootstrap_samples": 2000,
+    "bootstrap_seed": 0
+  },
+  "domain_breakdown": [
+    {
+      "domain": "code",
+      "cases": 3,
+      "answered": 3,
+      "similarity": 0.6958333333333333,
+      "cbench_score": 17.229612719705003,
+      "prefix": 0.6,
+      "exact": 1
+    },
+    {
+      "domain": "multilingual",
+      "cases": 3,
+      "answered": 3,
+      "similarity": 0.9843905207889883,
+      "cbench_score": 60.22038621130147,
+      "prefix": 0.7628423442599687,
+      "exact": 1
+    },
+    {
+      "domain": "prose",
+      "cases": 3,
+      "answered": 3,
+      "similarity": 0.9,
+      "cbench_score": 33.33333333333333,
+      "prefix": 0.5583333333333333,
+      "exact": 1
+    },
+    {
+      "domain": "structured",
+      "cases": 3,
+      "answered": 3,
+      "similarity": 0.43968357809335573,
+      "cbench_score": 8.385554964155926,
+      "prefix": 0.32916666666666666,
+      "exact": 0
+    }
+  ],
+  "audit": {
+    "completed_cases": 12,
+    "client_errors": 0,
+    "tool_events": 0,
+    "canonical_rescore_verified": true,
+    "source_file_hashes_verified": true,
+    "raw_run_sha256": "6b923863ae4dfda6ccfb72f267d60eb1d1961e6a49feb28baf92bae85297756a"
+  },
+  "private_cases_and_continuations_published": false
+}
