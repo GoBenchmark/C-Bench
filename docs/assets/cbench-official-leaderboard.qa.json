@@ -1,9 +1,9 @@
 {
-  "claim": "claude-opus-5 leads the current nine-model official leaderboard.",
+  "claim": "claude-opus-5 leads the current 10-model official leaderboard.",
   "excluded_rows": 0,
   "figure_size_inches": [
     7.2,
-    5.0
+    5.4
   ],
   "figure_width_mm": 182.88,
   "matplotlib": "3.11.1",
@@ -15,17 +15,19 @@
   ],
   "png_dimensions_px": [
     2160,
-    1500
+    1620
   ],
   "png_dpi": 300,
   "private_data_included": false,
   "python": "3.13.7",
-  "rows": 9,
+  "rows": 10,
   "score_transform": "100 * min(1, log10(1 / (1 - macro_similarity)) / 3)",
   "source_data": "cbench-official-leaderboard.csv",
-  "source_sha256": "a53e981c79a3621dc4a58f7132d54a262657547a3c3165007feed225fdb2f244",
+  "source_sha256": "269f13e786fb6d156df8a48908c92628c80fd5f7006094f1fd19efe1a8e574fd",
   "validation_notes": [
     "The 183 mm width matches a common double-column figure.",
+    "Physical dimensions are defined by FIGURE_SIZE and checked on exports.",
+    "Raster exports use 300 dpi for the README; vector exports remain editable.",
     "The validator's log-guard warning refers to the documented score formula; score inputs are validated by cbench.generation_track."
   ]
 }
