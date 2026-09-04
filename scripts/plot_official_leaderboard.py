@@ -19,8 +19,10 @@ PDF_PATH = ASSET_DIR / "cbench-official-leaderboard.pdf"
 PNG_PATH = ASSET_DIR / "cbench-official-leaderboard.png"
 TIFF_PATH = ASSET_DIR / "cbench-official-leaderboard.tiff"
 QA_PATH = ASSET_DIR / "cbench-official-leaderboard.qa.json"
+FIGURE_SIZE = (7.2, 5.4)
 
 COLORS = {
+    "gpt-6-astra": "#0F766E",
     "claude-opus-5": "#D97706",
     "claude-opus-4-8": "#D97706",
     "claude-opus-4-7": "#D97706",
@@ -66,8 +68,8 @@ def plot(rows: list[dict[str, str]]) -> None:
         }
     )
 
-    figure = plt.figure(figsize=(7.2, 5.0), facecolor="white")
-    axis = figure.add_axes((0.25, 0.13, 0.69, 0.72), facecolor="white")
+    figure = plt.figure(figsize=FIGURE_SIZE, facecolor="white")
+    axis = figure.add_axes((0.28, 0.13, 0.66, 0.72), facecolor="white")
 
     positions = list(reversed(range(len(rows))))
     scores = [float(row["cbench_score"]) for row in rows]
@@ -155,7 +157,7 @@ def write_qa(rows: list[dict[str, str]]) -> None:
     with Image.open(PNG_PATH) as image:
         png_dimensions = list(image.size)
     qa = {
-        "claim": "claude-opus-5 leads the current nine-model official leaderboard.",
+        "claim": f"{rows[0]['model']} leads the current {len(rows)}-model official leaderboard.",
         "source_data": SOURCE_PATH.name,
         "source_sha256": hashlib.sha256(SOURCE_PATH.read_bytes()).hexdigest(),
         "rows": len(rows),
@@ -168,7 +170,7 @@ def write_qa(rows: list[dict[str, str]]) -> None:
             TIFF_PATH.name,
         ],
         "png_dimensions_px": png_dimensions,
-        "figure_size_inches": [7.2, 5.0],
+        "figure_size_inches": list(FIGURE_SIZE),
         "figure_width_mm": 182.88,
         "png_dpi": 300,
         "python": platform.python_version(),
@@ -176,6 +178,8 @@ def write_qa(rows: list[dict[str, str]]) -> None:
         "private_data_included": False,
         "validation_notes": [
             "The 183 mm width matches a common double-column figure.",
+            "Physical dimensions are defined by FIGURE_SIZE and checked on exports.",
+            "Raster exports use 300 dpi for the README; vector exports remain editable.",
             "The validator's log-guard warning refers to the documented score "
             "formula; score inputs are validated by cbench.generation_track.",
         ],
