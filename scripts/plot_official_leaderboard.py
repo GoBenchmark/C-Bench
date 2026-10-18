@@ -22,6 +22,7 @@ QA_PATH = ASSET_DIR / "cbench-official-leaderboard.qa.json"
 FIGURE_SIZE = (7.2, 6.8)
 
 COLORS = {
+    "gpt-6.1-sol": "#0F766E",
     "gpt-6-astra": "#0F766E",
     "claude-opus-5": "#D97706",
     "claude-opus-4-8": "#D97706",

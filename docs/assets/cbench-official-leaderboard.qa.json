@@ -1,5 +1,5 @@
 {
-  "claim": "claude-opus-5 leads the current 13-entry official leaderboard.",
+  "claim": "claude-opus-5 leads the current 14-entry official leaderboard.",
   "excluded_rows": 0,
   "figure_size_inches": [
     7.2,
@@ -20,10 +20,10 @@
   "png_dpi": 300,
   "private_data_included": false,
   "python": "3.13.7",
-  "rows": 13,
+  "rows": 14,
   "score_transform": "100 * min(1, log10(1 / (1 - macro_similarity)) / 3)",
   "source_data": "cbench-official-leaderboard.csv",
-  "source_sha256": "dcc9bfaa60a02e02ac05886d28f267dd85a3a69c2b95637475b7aa14595b6a80",
+  "source_sha256": "0cb7409c39bd832f9b1c78f4d1c4747bf159e089716d0279dc8649a484a5e6ee",
   "validation_notes": [
     "The 183 mm width matches a common double-column figure.",
     "Physical dimensions are defined by FIGURE_SIZE and checked on exports.",
