@@ -1,0 +1,64 @@
+{
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "max",
+  "evaluation_date": "2026-11-02",
+  "client": "Codex CLI",
+  "evaluation": "Maintainer-controlled private official suite",
+  "scores": {
+    "cbench_score": 10.464232985397782,
+    "score_100_ci_95": [
+      6.682629686111523,
+      13.942188829134489
+    ],
+    "macro_similarity": 0.514629909797386,
+    "micro_similarity": 0.514629909797386,
+    "macro_prefix": 0.29437437916844045,
+    "exact_rate": 0.16666666666666666,
+    "exact": 2,
+    "cases": 12,
+    "answered": 12,
+    "score_nines": 3,
+    "higher_is_better": true
+  },
+  "domain_breakdown": [
+    {
+      "domain": "code",
+      "cases": 3,
+      "answered": 3,
+      "similarity": 0.2525860792847204,
+      "cbench_score": 4.214627253340138,
+      "prefix": 0.0625,
+      "exact": 0
+    },
+    {
+      "domain": "multilingual",
+      "cases": 3,
+      "answered": 3,
+      "similarity": 0.9887316978399477,
+      "cbench_score": 64.93805053010566,
+      "prefix": 0.5774975166737618,
+      "exact": 1
+    },
+    {
+      "domain": "prose",
+      "cases": 3,
+      "answered": 3,
+      "similarity": 0.6756493506493507,
+      "cbench_score": 16.299507609148737,
+      "prefix": 0.5375,
+      "exact": 1
+    },
+    {
+      "domain": "structured",
+      "cases": 3,
+      "answered": 3,
+      "similarity": 0.1415525114155251,
+      "cbench_score": 2.209542185881284,
+      "prefix": 0,
+      "exact": 0
+    }
+  ],
+  "tool_use_audit": "No tool events observed",
+  "private_cases_and_continuations_published": false,
+  "raw_run_sha256": "1086c73abfdb4a1149932a1befa93d1acd8687a7bff6612edce930ebcf929105"
+}

@@ -83,6 +83,17 @@ repository. Maintainer-controlled runs use hidden, rotating continuations.
 | 12 | gpt-5.6-terra | OpenAI API / xhigh | **18.55** | 72.23% | 46.26% | 1/12 | Maintainer run; 12/12 completed |
 | 13 | gpt-6-astra | Codex CLI / low | **16.19** | 67.31% | 49.12% | 2/12 | [Maintainer run](docs/results/gpt-6-astra-low-2026-09-05.json); 12/12 completed |
 | 14 | gpt-5.4 | Codex CLI / xhigh | **14.56** | 63.41% | 28.84% | 1/12 | Maintainer run; 12/12 completed |
+| 15 | gpt-6.1-terra | Codex CLI / max | **10.46** | 51.46% | 29.44% | 2/12 | [Maintainer run](docs/results/gpt-6.1-terra-max-2026-11-02.json); 12/12 completed |
+
+### App Diagnostics (Unranked)
+
+Gemini used a fresh temporary chat for each of the same 12 private cases. The
+desktop app does not expose an equivalent tool-use audit, so this result is
+excluded from the official ranking and plot.
+
+| Model | Access / setting | C-Bench Score | Similarity | Prefix | Exact | Evidence |
+|---|---|---:|---:|---:|---:|---|
+| Gemini Argon | Gemini desktop app / High | **16.26** | 67.48% | 42.45% | 2/12 | [App diagnostic](docs/results/gemini-argon-high-app-2026-11-02.json); 12/12 completed |
 
 ### Public Leaderboard
 

@@ -1,0 +1,63 @@
+{
+  "model": "Gemini Argon",
+  "reasoning_effort": "High",
+  "evaluation_date": "2026-11-02",
+  "client": "Gemini desktop app",
+  "evaluation": "Unranked app diagnostic on the private official suite",
+  "scores": {
+    "cbench_score": 16.26239758112174,
+    "score_100_ci_95": [
+      12.773557168659622,
+      19.60398430209535
+    ],
+    "macro_similarity": 0.6748168208895935,
+    "micro_similarity": 0.6748168208895935,
+    "macro_prefix": 0.42451087342131405,
+    "exact_rate": 0.16666666666666666,
+    "exact": 2,
+    "cases": 12,
+    "answered": 12,
+    "score_nines": 3,
+    "higher_is_better": true
+  },
+  "domain_breakdown": [
+    {
+      "domain": "code",
+      "cases": 3,
+      "answered": 3,
+      "similarity": 0.013469503884614325,
+      "cbench_score": 0.1963161693295674,
+      "prefix": 0,
+      "exact": 0
+    },
+    {
+      "domain": "multilingual",
+      "cases": 3,
+      "answered": 3,
+      "similarity": 0.9676560721477979,
+      "cbench_score": 49.67357468099357,
+      "prefix": 0.5688768270185894,
+      "exact": 1
+    },
+    {
+      "domain": "prose",
+      "cases": 3,
+      "answered": 3,
+      "similarity": 0.792701911700604,
+      "cbench_score": 22.78015676488089,
+      "prefix": 0.35833333333333334,
+      "exact": 0
+    },
+    {
+      "domain": "structured",
+      "cases": 3,
+      "answered": 3,
+      "similarity": 0.9254397958253578,
+      "cbench_score": 37.58309704621281,
+      "prefix": 0.7708333333333334,
+      "exact": 1
+    }
+  ],
+  "tool_use_audit": "Unavailable in the desktop app",
+  "private_cases_and_continuations_published": false
+}
