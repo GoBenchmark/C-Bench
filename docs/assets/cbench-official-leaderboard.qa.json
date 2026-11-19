@@ -1,9 +1,9 @@
 {
-  "claim": "claude-opus-5 leads the current 15-entry official leaderboard.",
+  "claim": "gpt-6.2-astra leads the current 17-entry official leaderboard.",
   "excluded_rows": 0,
   "figure_size_inches": [
     7.2,
-    6.8
+    7.4
   ],
   "figure_width_mm": 182.88,
   "matplotlib": "3.11.1",
@@ -15,15 +15,15 @@
   ],
   "png_dimensions_px": [
     2160,
-    2040
+    2220
   ],
   "png_dpi": 300,
   "private_data_included": false,
   "python": "3.13.7",
-  "rows": 15,
+  "rows": 17,
   "score_transform": "100 * min(1, log10(1 / (1 - macro_similarity)) / 3)",
   "source_data": "cbench-official-leaderboard.csv",
-  "source_sha256": "e1f651d2dfb9e3612a5f913083204a7fd2f8e3fcdb4f17ceeb378cfbdc370357",
+  "source_sha256": "b8739622e2b3891bffbc6399c6dc08e3d5239868e56ae3a7bd2bab70190f6053",
   "validation_notes": [
     "The 183 mm width matches a common double-column figure.",
     "Physical dimensions are defined by FIGURE_SIZE and checked on exports.",

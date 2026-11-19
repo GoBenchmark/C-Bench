@@ -69,21 +69,23 @@ repository. Maintainer-controlled runs use hidden, rotating continuations.
 
 | Rank | Model | Access / setting | C-Bench Score | Similarity | Prefix | Exact | Evidence |
 |---:|---|---|---:|---:|---:|---:|---|
-| 1 | claude-opus-5 | Claude Code / xhigh | **38.61** | 93.05% | 73.29% | 3/12 | Maintainer run; 12/12 completed |
-| 2 | gpt-6.1-sol | Codex CLI / max | **35.87** | 91.61% | 72.82% | 5/12 | [Maintainer run](docs/results/gpt-6.1-sol-max-2026-10-14.json); 12/12 completed |
-| 3 | gpt-6-astra | Codex CLI / max | **34.38** | 90.70% | 68.34% | 5/12 | [Maintainer run](docs/results/gpt-6-astra-max-2026-09-05.json); 12/12 completed |
-| 4 | gpt-6-astra | Codex CLI / xhigh | **30.75** | 88.04% | 66.99% | 5/12 | [Maintainer run](docs/results/gpt-6-astra-xhigh-2026-09-05.json); 12/12 completed |
-| 5 | gpt-5.6-sol | OpenAI API / xhigh | **29.13** | 86.63% | 65.51% | 5/12 | Maintainer run; 12/12 completed |
-| 6 | claude-opus-4-8 | Claude Code / xhigh | **26.36** | 83.81% | 36.84% | 1/12 | Maintainer run; 12/12 completed |
-| 7 | claude-opus-4-7 | Claude Code / xhigh | **26.05** | 83.46% | 50.40% | 1/12 | Maintainer run; 12/12 completed |
-| 8 | claude-opus-4-6 | Claude Code / xhigh | **25.41** | 82.71% | 45.48% | 2/12 | Maintainer run; 12/12 completed |
-| 9 | gpt-5.5 | Codex CLI / xhigh | **21.07** | 76.67% | 51.21% | 3/12 | Maintainer run; 12/12 completed |
-| 10 | gpt-6-astra | Codex CLI / medium | **20.36** | 75.50% | 56.26% | 3/12 | [Maintainer run](docs/results/gpt-6-astra-medium-2026-09-05.json); 12/12 completed |
-| 11 | gpt-5.6-luna | OpenAI API / xhigh | **19.88** | 74.67% | 41.48% | 0/12 | Maintainer run; 12/12 completed |
-| 12 | gpt-5.6-terra | OpenAI API / xhigh | **18.55** | 72.23% | 46.26% | 1/12 | Maintainer run; 12/12 completed |
-| 13 | gpt-6-astra | Codex CLI / low | **16.19** | 67.31% | 49.12% | 2/12 | [Maintainer run](docs/results/gpt-6-astra-low-2026-09-05.json); 12/12 completed |
-| 14 | gpt-5.4 | Codex CLI / xhigh | **14.56** | 63.41% | 28.84% | 1/12 | Maintainer run; 12/12 completed |
-| 15 | gpt-6.1-terra | Codex CLI / max | **10.46** | 51.46% | 29.44% | 2/12 | [Maintainer run](docs/results/gpt-6.1-terra-max-2026-11-02.json); 12/12 completed |
+| 1 | gpt-6.2-astra | Codex CLI / max | **48.20** | 96.42% | 78.32% | 6/12 | [Maintainer run](docs/results/gpt-6.2-astra-max-2026-11-19.json); 12/12 completed |
+| 2 | claude-opus-5 | Claude Code / xhigh | **38.61** | 93.05% | 73.29% | 3/12 | Maintainer run; 12/12 completed |
+| 3 | gpt-6.1-sol | Codex CLI / max | **35.87** | 91.61% | 72.82% | 5/12 | [Maintainer run](docs/results/gpt-6.1-sol-max-2026-10-14.json); 12/12 completed |
+| 4 | gpt-6-astra | Codex CLI / max | **34.38** | 90.70% | 68.34% | 5/12 | [Maintainer run](docs/results/gpt-6-astra-max-2026-09-05.json); 12/12 completed |
+| 5 | gpt-6-astra | Codex CLI / xhigh | **30.75** | 88.04% | 66.99% | 5/12 | [Maintainer run](docs/results/gpt-6-astra-xhigh-2026-09-05.json); 12/12 completed |
+| 6 | gpt-6.2-sol | Codex CLI / max | **30.19** | 87.57% | 72.61% | 5/12 | [Maintainer run](docs/results/gpt-6.2-sol-max-2026-11-19.json); 12/12 completed |
+| 7 | gpt-5.6-sol | OpenAI API / xhigh | **29.13** | 86.63% | 65.51% | 5/12 | Maintainer run; 12/12 completed |
+| 8 | claude-opus-4-8 | Claude Code / xhigh | **26.36** | 83.81% | 36.84% | 1/12 | Maintainer run; 12/12 completed |
+| 9 | claude-opus-4-7 | Claude Code / xhigh | **26.05** | 83.46% | 50.40% | 1/12 | Maintainer run; 12/12 completed |
+| 10 | claude-opus-4-6 | Claude Code / xhigh | **25.41** | 82.71% | 45.48% | 2/12 | Maintainer run; 12/12 completed |
+| 11 | gpt-5.5 | Codex CLI / xhigh | **21.07** | 76.67% | 51.21% | 3/12 | Maintainer run; 12/12 completed |
+| 12 | gpt-6-astra | Codex CLI / medium | **20.36** | 75.50% | 56.26% | 3/12 | [Maintainer run](docs/results/gpt-6-astra-medium-2026-09-05.json); 12/12 completed |
+| 13 | gpt-5.6-luna | OpenAI API / xhigh | **19.88** | 74.67% | 41.48% | 0/12 | Maintainer run; 12/12 completed |
+| 14 | gpt-5.6-terra | OpenAI API / xhigh | **18.55** | 72.23% | 46.26% | 1/12 | Maintainer run; 12/12 completed |
+| 15 | gpt-6-astra | Codex CLI / low | **16.19** | 67.31% | 49.12% | 2/12 | [Maintainer run](docs/results/gpt-6-astra-low-2026-09-05.json); 12/12 completed |
+| 16 | gpt-5.4 | Codex CLI / xhigh | **14.56** | 63.41% | 28.84% | 1/12 | Maintainer run; 12/12 completed |
+| 17 | gpt-6.1-terra | Codex CLI / max | **10.46** | 51.46% | 29.44% | 2/12 | [Maintainer run](docs/results/gpt-6.1-terra-max-2026-11-02.json); 12/12 completed |
 
 ### App Diagnostics (Unranked)
 

@@ -19,9 +19,11 @@ PDF_PATH = ASSET_DIR / "cbench-official-leaderboard.pdf"
 PNG_PATH = ASSET_DIR / "cbench-official-leaderboard.png"
 TIFF_PATH = ASSET_DIR / "cbench-official-leaderboard.tiff"
 QA_PATH = ASSET_DIR / "cbench-official-leaderboard.qa.json"
-FIGURE_SIZE = (7.2, 6.8)
+FIGURE_SIZE = (7.2, 7.4)
 
 COLORS = {
+    "gpt-6.2-astra": "#0F766E",
+    "gpt-6.2-sol": "#0F766E",
     "gpt-6.1-terra": "#0F766E",
     "gpt-6.1-sol": "#0F766E",
     "gpt-6-astra": "#0F766E",
@@ -92,10 +94,10 @@ def plot(rows: list[dict[str, str]]) -> None:
             va="center",
         )
 
-    axis.set_xlim(0, 45)
+    axis.set_xlim(0, 55)
     axis.set_ylim(-0.65, len(rows) - 0.35)
     axis.set_yticks(positions, model_labels, fontweight="bold", color="#0F172A")
-    axis.set_xticks([0, 10, 20, 30, 40])
+    axis.set_xticks([0, 10, 20, 30, 40, 50])
     axis.set_xlabel("C-Bench Score", color="#334155", labelpad=8)
     axis.tick_params(axis="y", length=0, pad=12)
     axis.tick_params(axis="x", colors="#64748B", length=0)
