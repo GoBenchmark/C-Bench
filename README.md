@@ -65,7 +65,7 @@ exact BPB are supporting diagnostics.
 Official cases and answer keys are private and are not published in this
 repository. Maintainer-controlled runs use hidden, rotating continuations.
 
-![C-Bench leaderboard with official GPT and Claude scores and an unranked Gemini app diagnostics section](docs/assets/cbench-official-leaderboard.png)
+![Official C-Bench leaderboard showing log-scaled scores for tested Claude and GPT models](docs/assets/cbench-official-leaderboard.png)
 
 | Rank | Model | Access / setting | C-Bench Score | Similarity | Prefix | Exact | Evidence |
 |---:|---|---|---:|---:|---:|---:|---|
@@ -90,8 +90,8 @@ repository. Maintainer-controlled runs use hidden, rotating continuations.
 ### App Diagnostics (Unranked)
 
 Each Gemini run used a fresh temporary chat for each of the same 12 private
-cases. The desktop app does not expose an equivalent tool-use audit, so the
-figure shows these results in the unranked app diagnostics section.
+cases. The desktop app does not expose an equivalent tool-use audit,
+so these scores are reported as unranked diagnostics.
 
 | Model | Access / setting | C-Bench Score | Similarity | Prefix | Exact | Evidence |
 |---|---|---:|---:|---:|---:|---|
