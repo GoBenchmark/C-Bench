@@ -15,11 +15,12 @@
     "cbench-official-leaderboard.png",
     "cbench-official-leaderboard.tiff"
   ],
+  "png_bytes": 121349,
   "png_dimensions_px": [
-    2160,
-    2412
+    1728,
+    1929
   ],
-  "png_dpi": 300,
+  "png_dpi": 240,
   "private_data_included": false,
   "python": "3.13.7",
   "rows": 17,
@@ -29,7 +30,7 @@
   "validation_notes": [
     "The 183 mm width matches a common double-column figure.",
     "Height grows with the number of ranked entries to preserve row spacing.",
-    "Raster exports use 300 dpi for the README; vector exports remain editable.",
+    "The README uses an optimized indexed PNG; TIFF is exported at 300 dpi.",
     "The validator's log-guard warning refers to the documented score formula; score inputs are validated by cbench.generation_track."
   ]
 }
