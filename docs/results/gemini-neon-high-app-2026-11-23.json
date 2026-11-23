@@ -1,0 +1,25 @@
+{
+  "model": "Gemini Neon",
+  "reasoning_effort": "High",
+  "evaluation_date": "2026-11-23",
+  "client": "Gemini desktop app",
+  "evaluation": "Unranked app diagnostic on the private official suite",
+  "scores": {
+    "cbench_score": 17.103163682506526,
+    "score_100_ci_95": [
+      10.260221013780983,
+      29.802463013698183
+    ],
+    "macro_similarity": 0.6931648640689845,
+    "micro_similarity": 0.6931648640689844,
+    "macro_prefix": 0.3932471264367816,
+    "exact_rate": 0.08333333333333333,
+    "exact": 1,
+    "cases": 12,
+    "answered": 12,
+    "score_nines": 3.0,
+    "higher_is_better": true
+  },
+  "tool_use_audit": "Unavailable in the desktop app",
+  "private_cases_and_continuations_published": false
+}
