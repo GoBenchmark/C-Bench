@@ -89,13 +89,14 @@ repository. Maintainer-controlled runs use hidden, rotating continuations.
 
 ### App Diagnostics (Unranked)
 
-Gemini used a fresh temporary chat for each of the same 12 private cases. The
-desktop app does not expose an equivalent tool-use audit, so this result is
-excluded from the official ranking and plot.
+Each Gemini run used a fresh temporary chat for each of the same 12 private
+cases. The desktop app does not expose an equivalent tool-use audit, so these
+results are excluded from the official ranking and plot.
 
 | Model | Access / setting | C-Bench Score | Similarity | Prefix | Exact | Evidence |
 |---|---|---:|---:|---:|---:|---|
 | Gemini Argon | Gemini desktop app / High | **16.26** | 67.48% | 42.45% | 2/12 | [App diagnostic](docs/results/gemini-argon-high-app-2026-11-02.json); 12/12 completed |
+| Gemini Neon | Gemini desktop app / High | **17.10** | 69.32% | 39.32% | 1/12 | App diagnostic (2026-11-23); 12/12 completed |
 
 ### Public Leaderboard
 
