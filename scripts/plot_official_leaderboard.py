@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+from io import BytesIO
 import json
 from math import ceil
 from pathlib import Path
@@ -22,6 +23,7 @@ TIFF_PATH = ASSET_DIR / "cbench-official-leaderboard.tiff"
 QA_PATH = ASSET_DIR / "cbench-official-leaderboard.qa.json"
 HEADER_ART_PATH = ASSET_DIR / "cbench-leaderboard-ribbons.png"
 FIGURE_WIDTH = 7.2
+WEB_PNG_DPI = 240
 ROW_HEIGHT = 0.38
 HEADER_HEIGHT = 0.96
 FOOTER_HEIGHT = 0.62
@@ -180,12 +182,14 @@ def plot(rows: list[dict[str, str]]) -> tuple[float, float]:
             "Title": TITLE,
         },
     )
-    figure.savefig(
-        PNG_PATH,
-        format="png",
-        dpi=300,
-        metadata={"Title": TITLE},
-    )
+    with BytesIO() as png_buffer:
+        figure.savefig(png_buffer, format="png", dpi=WEB_PNG_DPI)
+        png_buffer.seek(0)
+        with Image.open(png_buffer) as image:
+            web_image = image.convert("RGB").quantize(
+                colors=256, dither=Image.Dither.NONE
+            )
+            web_image.save(PNG_PATH, optimize=True, dpi=(WEB_PNG_DPI, WEB_PNG_DPI))
     figure.savefig(
         TIFF_PATH,
         format="tiff",
@@ -217,14 +221,15 @@ def write_qa(rows: list[dict[str, str]], figure_size: tuple[float, float]) -> No
         "png_dimensions_px": png_dimensions,
         "figure_size_inches": list(figure_size),
         "figure_width_mm": round(figure_size[0] * 25.4, 2),
-        "png_dpi": 300,
+        "png_dpi": WEB_PNG_DPI,
+        "png_bytes": PNG_PATH.stat().st_size,
         "python": platform.python_version(),
         "matplotlib": mpl.__version__,
         "private_data_included": False,
         "validation_notes": [
             "The 183 mm width matches a common double-column figure.",
             "Height grows with the number of ranked entries to preserve row spacing.",
-            "Raster exports use 300 dpi for the README; vector exports remain editable.",
+            "The README uses an optimized indexed PNG; TIFF is exported at 300 dpi.",
             "The validator's log-guard warning refers to the documented score "
             "formula; score inputs are validated by cbench.generation_track.",
         ],
