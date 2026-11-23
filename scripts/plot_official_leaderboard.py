@@ -22,6 +22,10 @@ PNG_PATH = ASSET_DIR / "cbench-official-leaderboard.png"
 TIFF_PATH = ASSET_DIR / "cbench-official-leaderboard.tiff"
 QA_PATH = ASSET_DIR / "cbench-official-leaderboard.qa.json"
 HEADER_ART_PATH = ASSET_DIR / "cbench-leaderboard-ribbons.png"
+APP_DIAGNOSTIC_PATHS = (
+    ROOT / "docs/results/gemini-argon-high-app-2026-11-02.json",
+    ROOT / "docs/results/gemini-neon-high-app-2026-11-23.json",
+)
 FIGURE_WIDTH = 7.2
 WEB_PNG_DPI = 240
 ROW_HEIGHT = 0.38
@@ -31,7 +35,7 @@ TITLE = "Official C-Bench rankings"
 PAPER = "#FBF6EE"
 INK = "#191624"
 RULE = "#DFD3C6"
-BAR_COLORS = {"gpt": "#3155C3", "claude": "#AE471E"}
+BAR_COLORS = {"gpt": "#3155C3", "claude": "#AE471E", "gemini": "#087C65"}
 
 
 def load_rows() -> list[dict[str, str]]:
@@ -42,7 +46,23 @@ def load_rows() -> list[dict[str, str]]:
     return sorted(rows, key=lambda row: float(row["cbench_score"]), reverse=True)
 
 
-def plot(rows: list[dict[str, str]]) -> tuple[float, float]:
+def load_app_diagnostics() -> list[dict[str, str]]:
+    rows = []
+    for path in APP_DIAGNOSTIC_PATHS:
+        result = json.loads(path.read_text(encoding="utf-8"))
+        rows.append(
+            {
+                "model": result["model"],
+                "setting": result["reasoning_effort"],
+                "cbench_score": str(result["scores"]["cbench_score"]),
+            }
+        )
+    return sorted(rows, key=lambda row: float(row["cbench_score"]), reverse=True)
+
+
+def plot(
+    ranked_rows: list[dict[str, str]], diagnostics: list[dict[str, str]],
+) -> tuple[float, float]:
     mpl.rcParams.update(
         {
             "font.family": "sans-serif",
@@ -64,7 +84,9 @@ def plot(rows: list[dict[str, str]]) -> tuple[float, float]:
         }
     )
 
-    plot_height = len(rows) * ROW_HEIGHT
+    section_gap = 1.4
+    rows = ranked_rows + diagnostics
+    plot_height = (len(rows) + section_gap) * ROW_HEIGHT
     figure_height = HEADER_HEIGHT + plot_height + FOOTER_HEIGHT
     figure_size = (FIGURE_WIDTH, figure_height)
     figure = plt.figure(figsize=figure_size, facecolor=PAPER)
@@ -74,30 +96,33 @@ def plot(rows: list[dict[str, str]]) -> tuple[float, float]:
         facecolor=PAPER,
     )
 
-    positions = list(reversed(range(len(rows))))
+    ranked_positions = [
+        position + section_gap for position in reversed(range(len(diagnostics), len(rows)))
+    ]
+    diagnostic_positions = list(reversed(range(len(diagnostics))))
+    positions = ranked_positions + diagnostic_positions
     scores = [float(row["cbench_score"]) for row in rows]
     score_limit = max(10, 10 * ceil(max(scores) / 10))
     bar_left, bar_right = 0.43, 0.85
     score_scale = (bar_right - bar_left) / score_limit
     tick_positions = list(range(0, score_limit + 1, 10))
 
-    axis.hlines(
-        [position - 0.5 for position in positions] + [positions[0] + 0.5],
-        0,
-        1,
-        colors=RULE,
-        linewidth=0.45,
-        zorder=0.5,
+    for section in (ranked_positions, diagnostic_positions):
+        axis.hlines(
+            [position - 0.5 for position in section] + [section[0] + 0.5],
+            0, 1, colors=RULE, linewidth=0.45, zorder=0.5,
+        )
+        axis.vlines(
+            [bar_left + tick * score_scale for tick in tick_positions],
+            section[-1] - 0.5, section[0] + 0.5,
+            colors=RULE, linewidth=0.45, zorder=0.5,
+        )
+    axis.text(
+        0, len(diagnostics) - 0.5 + section_gap / 2,
+        "App Diagnostics (Unranked)", color=INK, fontsize=13.3,
+        fontweight="bold", va="center",
     )
-    axis.vlines(
-        [bar_left + tick * score_scale for tick in tick_positions],
-        -0.5,
-        len(rows) - 0.5,
-        colors=RULE,
-        linewidth=0.45,
-        zorder=0.5,
-    )
-    colors = [BAR_COLORS[row["model"].split("-", 1)[0]] for row in rows]
+    colors = [BAR_COLORS[row["model"].split()[0].split("-")[0].lower()] for row in rows]
     axis.barh(
         positions,
         [score * score_scale for score in scores],
@@ -127,7 +152,7 @@ def plot(rows: list[dict[str, str]]) -> tuple[float, float]:
         )
 
     axis.set_xlim(0, 1)
-    axis.set_ylim(-0.5, len(rows) - 0.5)
+    axis.set_ylim(-0.5, ranked_positions[0] + 0.5)
     axis.set_yticks([])
     axis.set_xticks([bar_left + tick * score_scale for tick in tick_positions], tick_positions)
     axis.set_xlabel(
@@ -200,7 +225,11 @@ def plot(rows: list[dict[str, str]]) -> tuple[float, float]:
     return figure_size
 
 
-def write_qa(rows: list[dict[str, str]], figure_size: tuple[float, float]) -> None:
+def write_qa(
+    rows: list[dict[str, str]],
+    diagnostics: list[dict[str, str]],
+    figure_size: tuple[float, float],
+) -> None:
     with Image.open(PNG_PATH) as image:
         png_dimensions = list(image.size)
     qa = {
@@ -210,6 +239,7 @@ def write_qa(rows: list[dict[str, str]], figure_size: tuple[float, float]) -> No
         "header_art": HEADER_ART_PATH.name,
         "header_art_source": "ImageGen",
         "rows": len(rows),
+        "unranked_app_diagnostics": len(diagnostics),
         "excluded_rows": 0,
         "score_transform": "100 * min(1, log10(1 / (1 - macro_similarity)) / 3)",
         "outputs": [
@@ -239,8 +269,9 @@ def write_qa(rows: list[dict[str, str]], figure_size: tuple[float, float]) -> No
 
 def main() -> None:
     rows = load_rows()
-    figure_size = plot(rows)
-    write_qa(rows, figure_size)
+    diagnostics = load_app_diagnostics()
+    figure_size = plot(rows, diagnostics)
+    write_qa(rows, diagnostics, figure_size)
     print(f"Wrote {SVG_PATH.relative_to(ROOT)}")
     print(f"Wrote {PDF_PATH.relative_to(ROOT)}")
     print(f"Wrote {PNG_PATH.relative_to(ROOT)}")

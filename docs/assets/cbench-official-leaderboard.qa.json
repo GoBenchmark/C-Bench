@@ -3,7 +3,7 @@
   "excluded_rows": 0,
   "figure_size_inches": [
     7.2,
-    8.04
+    9.331999999999999
   ],
   "figure_width_mm": 182.88,
   "header_art": "cbench-leaderboard-ribbons.png",
@@ -15,10 +15,10 @@
     "cbench-official-leaderboard.png",
     "cbench-official-leaderboard.tiff"
   ],
-  "png_bytes": 121349,
+  "png_bytes": 134042,
   "png_dimensions_px": [
     1728,
-    1929
+    2239
   ],
   "png_dpi": 240,
   "private_data_included": false,
@@ -27,6 +27,7 @@
   "score_transform": "100 * min(1, log10(1 / (1 - macro_similarity)) / 3)",
   "source_data": "cbench-official-leaderboard.csv",
   "source_sha256": "b8739622e2b3891bffbc6399c6dc08e3d5239868e56ae3a7bd2bab70190f6053",
+  "unranked_app_diagnostics": 2,
   "validation_notes": [
     "The 183 mm width matches a common double-column figure.",
     "Height grows with the number of ranked entries to preserve row spacing.",
