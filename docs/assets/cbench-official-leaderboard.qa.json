@@ -3,7 +3,7 @@
   "excluded_rows": 0,
   "figure_size_inches": [
     7.2,
-    7.4
+    8.929999999999998
   ],
   "figure_width_mm": 182.88,
   "matplotlib": "3.11.1",
@@ -15,7 +15,7 @@
   ],
   "png_dimensions_px": [
     2160,
-    2220
+    2679
   ],
   "png_dpi": 300,
   "private_data_included": false,
@@ -26,7 +26,7 @@
   "source_sha256": "b8739622e2b3891bffbc6399c6dc08e3d5239868e56ae3a7bd2bab70190f6053",
   "validation_notes": [
     "The 183 mm width matches a common double-column figure.",
-    "Physical dimensions are defined by FIGURE_SIZE and checked on exports.",
+    "Height grows with the number of ranked entries to preserve row spacing.",
     "Raster exports use 300 dpi for the README; vector exports remain editable.",
     "The validator's log-guard warning refers to the documented score formula; score inputs are validated by cbench.generation_track."
   ]
