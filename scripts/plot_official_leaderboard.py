@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+from math import ceil
 from pathlib import Path
 import platform
 
@@ -19,24 +20,11 @@ PDF_PATH = ASSET_DIR / "cbench-official-leaderboard.pdf"
 PNG_PATH = ASSET_DIR / "cbench-official-leaderboard.png"
 TIFF_PATH = ASSET_DIR / "cbench-official-leaderboard.tiff"
 QA_PATH = ASSET_DIR / "cbench-official-leaderboard.qa.json"
-FIGURE_SIZE = (7.2, 7.4)
-
-COLORS = {
-    "gpt-6.2-astra": "#0F766E",
-    "gpt-6.2-sol": "#0F766E",
-    "gpt-6.1-terra": "#0F766E",
-    "gpt-6.1-sol": "#0F766E",
-    "gpt-6-astra": "#0F766E",
-    "claude-opus-5": "#D97706",
-    "claude-opus-4-8": "#D97706",
-    "claude-opus-4-7": "#D97706",
-    "claude-opus-4-6": "#D97706",
-    "gpt-5.6-sol": "#0F766E",
-    "gpt-5.5": "#0F766E",
-    "gpt-5.6-luna": "#64748B",
-    "gpt-5.6-terra": "#64748B",
-    "gpt-5.4": "#64748B",
-}
+FIGURE_WIDTH = 7.2
+ROW_HEIGHT = 0.43
+HEADER_HEIGHT = 1.0
+FOOTER_HEIGHT = 0.62
+TITLE = "Official C-Bench rankings"
 
 
 def load_rows() -> list[dict[str, str]]:
@@ -47,7 +35,7 @@ def load_rows() -> list[dict[str, str]]:
     return sorted(rows, key=lambda row: float(row["cbench_score"]), reverse=True)
 
 
-def plot(rows: list[dict[str, str]]) -> None:
+def plot(rows: list[dict[str, str]]) -> tuple[float, float]:
     mpl.rcParams.update(
         {
             "font.family": "sans-serif",
@@ -57,11 +45,8 @@ def plot(rows: list[dict[str, str]]) -> None:
                 "Liberation Sans",
                 "DejaVu Sans",
             ],
-            "font.size": 9,
-            "axes.labelsize": 9,
-            "axes.titlesize": 11,
-            "xtick.labelsize": 8,
-            "ytick.labelsize": 10,
+            "axes.labelsize": 12,
+            "xtick.labelsize": 11,
             "axes.linewidth": 0.7,
             "axes.spines.top": False,
             "axes.spines.right": False,
@@ -72,61 +57,77 @@ def plot(rows: list[dict[str, str]]) -> None:
         }
     )
 
-    figure = plt.figure(figsize=FIGURE_SIZE, facecolor="white")
-    axis = figure.add_axes((0.28, 0.13, 0.66, 0.72), facecolor="white")
+    plot_height = len(rows) * ROW_HEIGHT
+    figure_height = HEADER_HEIGHT + plot_height + FOOTER_HEIGHT
+    figure_size = (FIGURE_WIDTH, figure_height)
+    figure = plt.figure(figsize=figure_size, facecolor="white")
+    left_margin = 0.05
+    axis = figure.add_axes(
+        (left_margin, FOOTER_HEIGHT / figure_height, 0.90, plot_height / figure_height)
+    )
 
     positions = list(reversed(range(len(rows))))
     scores = [float(row["cbench_score"]) for row in rows]
-    models = [row["model"] for row in rows]
-    model_labels = [f"{row['model']} ({row['setting']})" for row in rows]
-    colors = [COLORS[model] for model in models]
+    score_limit = max(10, 10 * ceil(max(scores) / 10))
+    text_position = axis.get_yaxis_transform()
 
-    axis.barh(positions, scores, height=0.52, color=colors)
-
-    for position, score in zip(positions, scores):
+    axis.barh(
+        [position - 0.21 for position in positions],
+        scores,
+        height=0.17,
+        color="#0F766E",
+    )
+    for row, position, score in zip(rows, positions, scores):
         axis.text(
-            score + 0.45,
-            position,
-            f"{score:.2f}",
+            0,
+            position + 0.17,
+            f"{row['model']} ({row['setting']})",
+            transform=text_position,
             color="#0F172A",
-            fontsize=10,
+            fontsize=15,
+            va="center",
+        )
+        axis.text(
+            1,
+            position + 0.17,
+            f"{score:.2f}",
+            transform=text_position,
+            color="#0F172A",
+            fontsize=15,
             fontweight="bold",
+            ha="right",
             va="center",
         )
 
-    axis.set_xlim(0, 55)
-    axis.set_ylim(-0.65, len(rows) - 0.35)
-    axis.set_yticks(positions, model_labels, fontweight="bold", color="#0F172A")
-    axis.set_xticks([0, 10, 20, 30, 40, 50])
-    axis.set_xlabel("C-Bench Score", color="#334155", labelpad=8)
-    axis.tick_params(axis="y", length=0, pad=12)
-    axis.tick_params(axis="x", colors="#64748B", length=0)
-    axis.grid(axis="x", color="#CBD5E1", linewidth=0.6, alpha=0.65)
-    axis.set_axisbelow(True)
-    axis.spines["bottom"].set_color("#94A3B8")
+    axis.set_xlim(0, score_limit)
+    axis.set_ylim(-0.55, len(rows) - 0.55)
+    axis.set_yticks([])
+    axis.set_xticks(range(0, score_limit + 1, 10))
+    axis.set_xlabel("C-Bench Score / 100", color="#334155", labelpad=6)
+    axis.tick_params(axis="x", colors="#475569", length=3)
+    axis.spines["bottom"].set_color("#CBD5E1")
 
     figure.text(
-        0.08,
-        0.90,
-        "Official C-Bench leaderboard",
-        fontsize=17,
+        left_margin,
+        1 - 0.25 / figure_height,
+        TITLE,
+        fontsize=23,
         fontweight="bold",
         color="#0F172A",
-        ha="left",
+        va="top",
     )
     figure.text(
-        0.08,
-        0.83,
-        "higher is better",
-        fontsize=8.5,
-        color="#64748B",
-        ha="left",
+        left_margin,
+        1 - 0.63 / figure_height,
+        "Higher is better",
+        fontsize=13,
+        color="#475569",
+        va="top",
     )
-
     figure.savefig(
         SVG_PATH,
         format="svg",
-        metadata={"Date": None, "Title": "Official C-Bench leaderboard"},
+        metadata={"Date": None, "Title": TITLE},
     )
     svg_text = SVG_PATH.read_text(encoding="utf-8")
     SVG_PATH.write_text(
@@ -139,14 +140,14 @@ def plot(rows: list[dict[str, str]]) -> None:
         metadata={
             "CreationDate": None,
             "ModDate": None,
-            "Title": "Official C-Bench leaderboard",
+            "Title": TITLE,
         },
     )
     figure.savefig(
         PNG_PATH,
         format="png",
         dpi=300,
-        metadata={"Title": "Official C-Bench leaderboard"},
+        metadata={"Title": TITLE},
     )
     figure.savefig(
         TIFF_PATH,
@@ -155,9 +156,10 @@ def plot(rows: list[dict[str, str]]) -> None:
         pil_kwargs={"compression": "tiff_lzw"},
     )
     plt.close(figure)
+    return figure_size
 
 
-def write_qa(rows: list[dict[str, str]]) -> None:
+def write_qa(rows: list[dict[str, str]], figure_size: tuple[float, float]) -> None:
     with Image.open(PNG_PATH) as image:
         png_dimensions = list(image.size)
     qa = {
@@ -174,15 +176,15 @@ def write_qa(rows: list[dict[str, str]]) -> None:
             TIFF_PATH.name,
         ],
         "png_dimensions_px": png_dimensions,
-        "figure_size_inches": list(FIGURE_SIZE),
-        "figure_width_mm": 182.88,
+        "figure_size_inches": list(figure_size),
+        "figure_width_mm": round(figure_size[0] * 25.4, 2),
         "png_dpi": 300,
         "python": platform.python_version(),
         "matplotlib": mpl.__version__,
         "private_data_included": False,
         "validation_notes": [
             "The 183 mm width matches a common double-column figure.",
-            "Physical dimensions are defined by FIGURE_SIZE and checked on exports.",
+            "Height grows with the number of ranked entries to preserve row spacing.",
             "Raster exports use 300 dpi for the README; vector exports remain editable.",
             "The validator's log-guard warning refers to the documented score "
             "formula; score inputs are validated by cbench.generation_track.",
@@ -193,8 +195,8 @@ def write_qa(rows: list[dict[str, str]]) -> None:
 
 def main() -> None:
     rows = load_rows()
-    plot(rows)
-    write_qa(rows)
+    figure_size = plot(rows)
+    write_qa(rows, figure_size)
     print(f"Wrote {SVG_PATH.relative_to(ROOT)}")
     print(f"Wrote {PDF_PATH.relative_to(ROOT)}")
     print(f"Wrote {PNG_PATH.relative_to(ROOT)}")
