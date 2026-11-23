@@ -3,9 +3,11 @@
   "excluded_rows": 0,
   "figure_size_inches": [
     7.2,
-    8.929999999999998
+    8.04
   ],
   "figure_width_mm": 182.88,
+  "header_art": "cbench-leaderboard-ribbons.png",
+  "header_art_source": "ImageGen",
   "matplotlib": "3.11.1",
   "outputs": [
     "cbench-official-leaderboard.svg",
@@ -15,7 +17,7 @@
   ],
   "png_dimensions_px": [
     2160,
-    2679
+    2412
   ],
   "png_dpi": 300,
   "private_data_included": false,
