@@ -20,11 +20,16 @@ PDF_PATH = ASSET_DIR / "cbench-official-leaderboard.pdf"
 PNG_PATH = ASSET_DIR / "cbench-official-leaderboard.png"
 TIFF_PATH = ASSET_DIR / "cbench-official-leaderboard.tiff"
 QA_PATH = ASSET_DIR / "cbench-official-leaderboard.qa.json"
+HEADER_ART_PATH = ASSET_DIR / "cbench-leaderboard-ribbons.png"
 FIGURE_WIDTH = 7.2
-ROW_HEIGHT = 0.43
-HEADER_HEIGHT = 1.0
+ROW_HEIGHT = 0.38
+HEADER_HEIGHT = 0.96
 FOOTER_HEIGHT = 0.62
 TITLE = "Official C-Bench rankings"
+PAPER = "#FBF6EE"
+INK = "#191624"
+RULE = "#DFD3C6"
+BAR_COLORS = {"gpt": "#3155C3", "claude": "#AE471E"}
 
 
 def load_rows() -> list[dict[str, str]]:
@@ -60,70 +65,102 @@ def plot(rows: list[dict[str, str]]) -> tuple[float, float]:
     plot_height = len(rows) * ROW_HEIGHT
     figure_height = HEADER_HEIGHT + plot_height + FOOTER_HEIGHT
     figure_size = (FIGURE_WIDTH, figure_height)
-    figure = plt.figure(figsize=figure_size, facecolor="white")
+    figure = plt.figure(figsize=figure_size, facecolor=PAPER)
     left_margin = 0.05
     axis = figure.add_axes(
-        (left_margin, FOOTER_HEIGHT / figure_height, 0.90, plot_height / figure_height)
+        (left_margin, FOOTER_HEIGHT / figure_height, 0.90, plot_height / figure_height),
+        facecolor=PAPER,
     )
 
     positions = list(reversed(range(len(rows))))
     scores = [float(row["cbench_score"]) for row in rows]
     score_limit = max(10, 10 * ceil(max(scores) / 10))
-    text_position = axis.get_yaxis_transform()
+    bar_left, bar_right = 0.43, 0.85
+    score_scale = (bar_right - bar_left) / score_limit
+    tick_positions = list(range(0, score_limit + 1, 10))
 
-    axis.barh(
-        [position - 0.21 for position in positions],
-        scores,
-        height=0.17,
-        color="#0F766E",
+    axis.hlines(
+        [position - 0.5 for position in positions] + [positions[0] + 0.5],
+        0,
+        1,
+        colors=RULE,
+        linewidth=0.45,
+        zorder=0.5,
     )
+    axis.vlines(
+        [bar_left + tick * score_scale for tick in tick_positions],
+        -0.5,
+        len(rows) - 0.5,
+        colors=RULE,
+        linewidth=0.45,
+        zorder=0.5,
+    )
+    colors = [BAR_COLORS[row["model"].split("-", 1)[0]] for row in rows]
+    axis.barh(
+        positions,
+        [score * score_scale for score in scores],
+        left=bar_left,
+        height=0.46,
+        color=colors,
+    )
+
     for row, position, score in zip(rows, positions, scores):
         axis.text(
             0,
-            position + 0.17,
+            position,
             f"{row['model']} ({row['setting']})",
-            transform=text_position,
-            color="#0F172A",
-            fontsize=15,
+            color=INK,
+            fontsize=13.3,
             va="center",
         )
         axis.text(
             1,
-            position + 0.17,
+            position,
             f"{score:.2f}",
-            transform=text_position,
-            color="#0F172A",
-            fontsize=15,
+            color=INK,
+            fontsize=13.3,
             fontweight="bold",
             ha="right",
             va="center",
         )
 
-    axis.set_xlim(0, score_limit)
-    axis.set_ylim(-0.55, len(rows) - 0.55)
+    axis.set_xlim(0, 1)
+    axis.set_ylim(-0.5, len(rows) - 0.5)
     axis.set_yticks([])
-    axis.set_xticks(range(0, score_limit + 1, 10))
-    axis.set_xlabel("C-Bench Score / 100", color="#334155", labelpad=6)
-    axis.tick_params(axis="x", colors="#475569", length=3)
-    axis.spines["bottom"].set_color("#CBD5E1")
+    axis.set_xticks([bar_left + tick * score_scale for tick in tick_positions], tick_positions)
+    axis.set_xlabel(
+        "C-Bench Score / 100",
+        color=INK,
+        labelpad=6,
+        x=(bar_left + bar_right) / 2,
+    )
+    axis.tick_params(axis="x", colors="#594E51", length=0, pad=5)
+    axis.spines["bottom"].set_visible(False)
 
     figure.text(
         left_margin,
-        1 - 0.25 / figure_height,
+        1 - 0.22 / figure_height,
         TITLE,
-        fontsize=23,
+        fontfamily="serif",
+        fontsize=24,
         fontweight="bold",
-        color="#0F172A",
+        color=INK,
         va="top",
     )
     figure.text(
         left_margin,
-        1 - 0.63 / figure_height,
+        1 - 0.60 / figure_height,
         "Higher is better",
-        fontsize=13,
-        color="#475569",
+        fontsize=11,
+        color="#594E51",
         va="top",
     )
+    art_axis = figure.add_axes(
+        (0.76, 1 - 0.81 / figure_height, 0.19, 0.67 / figure_height),
+        frameon=False,
+    )
+    art_axis.imshow(mpl.image.imread(HEADER_ART_PATH))
+    art_axis.set_axis_off()
     figure.savefig(
         SVG_PATH,
         format="svg",
@@ -166,6 +203,8 @@ def write_qa(rows: list[dict[str, str]], figure_size: tuple[float, float]) -> No
         "claim": f"{rows[0]['model']} leads the current {len(rows)}-entry official leaderboard.",
         "source_data": SOURCE_PATH.name,
         "source_sha256": hashlib.sha256(SOURCE_PATH.read_bytes()).hexdigest(),
+        "header_art": HEADER_ART_PATH.name,
+        "header_art_source": "ImageGen",
         "rows": len(rows),
         "excluded_rows": 0,
         "score_transform": "100 * min(1, log10(1 / (1 - macro_similarity)) / 3)",
